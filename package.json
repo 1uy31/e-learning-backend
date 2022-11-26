@@ -15,7 +15,7 @@
 	"pre-commit": [
 		"prettier",
 		"lintFix"
-	  ],
+	],
 	"_moduleAliases": {
 		"@src": "./src/",
 		"@database": "./src/database/"
