@@ -26,7 +26,8 @@
 		"express-graphql": "^0.12.0",
 		"graphql": "^16.6.0",
 		"module-alias": "^2.2.2",
-		"slonik": "^33.0.3"
+		"slonik": "^33.0.3",
+		"zod": "^3.19.1"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.14",
