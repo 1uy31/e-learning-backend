@@ -5,3 +5,7 @@ export const baseObject = z.object({
 	created_at: z.string(),
 	updated_at: z.string(),
 });
+
+export const countObject = z.object({
+	count: z.number(),
+});

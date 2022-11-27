@@ -41,7 +41,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 		const raw = await db.query(
 			sql.type(diaryObject)`INSERT INTO diary (topic, source_url, category_id) VALUES (${topic}, ${
 				sourceUrl || null
-			}, ${categoryId || null} RETURNING *;`
+			}, ${categoryId || null}) RETURNING *;`
 		);
 		return raw.rows[0];
 	};

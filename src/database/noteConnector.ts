@@ -45,7 +45,7 @@ export const createNoteConnector = (db: DatabasePool = dbPool): NoteConnector =>
 				noteObject
 			)`INSERT INTO diary (content, note_position, image_url, source_url, diary_id) VALUES (${content}, ${notePosition}, ${
 				imageUrl || null
-			}, ${sourceUrl || null}, ${diaryId || null} RETURNING *;`
+			}, ${sourceUrl || null}, ${diaryId || null}) RETURNING *;`
 		);
 		return raw.rows[0];
 	};
