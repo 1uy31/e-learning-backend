@@ -4,7 +4,6 @@
 BEGIN;
 
 CREATE TABLE e_learning_schema.note (
-
 	id SERIAL4 NOT NULL,
 	created_at TIMESTAMPTZ NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NULL,
