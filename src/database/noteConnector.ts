@@ -1,10 +1,10 @@
-import { dbPool } from '@database/pool';
-import { baseObject } from '@database/base';
+import { dbPool, NOTE_TABLE } from '@database/index';
+import { baseObj } from '@database/baseObjects';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
 
-const noteObject = baseObject
+const noteObject = baseObj
 	.extend({
 		content: z.string(),
 		note_position: z.number(),
@@ -43,7 +43,7 @@ export const createNoteConnector = (db: DatabasePool = dbPool): NoteConnector =>
 		const raw = await db.query(
 			sql.type(
 				noteObject
-			)`INSERT INTO diary (content, note_position, image_url, source_url, diary_id) VALUES (${content}, ${notePosition}, ${
+			)`INSERT INTO ${NOTE_TABLE} (content, note_position, image_url, source_url, diary_id) VALUES (${content}, ${notePosition}, ${
 				imageUrl || null
 			}, ${sourceUrl || null}, ${diaryId || null}) RETURNING *;`
 		);
