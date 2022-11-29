@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-export const baseObject = z.object({
+export const baseObj = z.object({
 	id: z.number(),
 	created_at: z.string(),
 	updated_at: z.string(),
 });
 
-export const countObject = z.object({
+export const countObj = z.object({
 	count: z.number(),
 });
