@@ -1,52 +1,85 @@
-import { dbPool } from '@database/pool';
-import { baseObject } from '@database/base';
+import { dbPool, DIARY_TABLE, CATEGORY_TABLE } from '@database/index';
+import { countObj } from '@database/baseObjects';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
+import { diaryObj, createDiaryObj, updateDiaryObj } from '@database/diaryObjects';
 
-const diaryObject = baseObject
-	.extend({
-		topic: z.string(),
-		source_url: z.string().nullable(),
-		review_count: z.number(),
-		rate: z.number().nullable(),
-		category_id: z.number().nullable(),
-	})
-	.transform((data) => ({
-		id: data.id,
-		createdAt: new Date(data.created_at),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : null,
-		topic: data.topic,
-		sourceUrl: data.source_url,
-		reviewCount: data.review_count,
-		rate: data.rate,
-		categoryId: data.category_id,
-	}));
-
-export type Diary = z.output<typeof diaryObject>;
-
-type DiaryCreateParams = {
-	topic: string;
-	sourceUrl?: string;
-	categoryId?: number;
-};
+export type Diary = z.output<typeof diaryObj>;
 
 export type DiaryConnector = {
-	create: (input: DiaryCreateParams) => Promise<Diary>;
+	create: (input: z.infer<typeof createDiaryObj>) => Promise<Diary>;
+	update: (input: z.infer<typeof updateDiaryObj>) => Promise<Diary | undefined>;
+	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Diary | undefined>;
+	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
 export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector => {
-	const create = async (input: DiaryCreateParams) => {
-		const { topic, sourceUrl, categoryId } = input;
+	const create = async (input: z.infer<typeof createDiaryObj>) => {
+		createDiaryObj.parse(input);
+		const keysToInsert = Object.entries(input)
+			.filter((item) => item[1])
+			.map((item) => item[0]);
+
+		const valuesToInsert = Object.entries(input)
+			.filter((item) => item[1])
+			.map((item) => item[1]);
+
+		const identifiers = keysToInsert.map((key) => sql.identifier([key]));
+		const columns = sql.join(identifiers, sql.fragment`, `);
+		const values = sql.join(valuesToInsert, sql.fragment`, `);
+
 		const raw = await db.query(
-			sql.type(diaryObject)`INSERT INTO diary (topic, source_url, category_id) VALUES (${topic}, ${
-				sourceUrl || null
-			}, ${categoryId || null}) RETURNING *;`
+			sql.type(diaryObj)`INSERT INTO ${DIARY_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
 		return raw.rows[0];
 	};
 
+	const update = async (input: z.infer<typeof updateDiaryObj>) => {
+		updateDiaryObj.parse(input);
+		const { id, ...restOfInput } = input;
+		const keysToUpdate = Object.entries(restOfInput)
+			.filter((item) => item[1])
+			.map((item) => item[0]);
+
+		const valuesToUpdate = Object.entries(restOfInput)
+			.filter((item) => item[1])
+			.map((item) => item[1]);
+
+		const setData = sql.join(
+			keysToUpdate.map((column, idx) => {
+				return sql.fragment`${sql.identifier([column])} = ${valuesToUpdate[idx]}`;
+			}),
+			sql.fragment`,`
+		);
+
+		const raw = await db.query(
+			sql.type(diaryObj)`UPDATE ${DIARY_TABLE} SET ${setData} WHERE id = ${id} RETURNING *;`
+		);
+		return raw.rows[0];
+	};
+
+	const getByCategorizedTopic = async (categoryName: string | null, topic: string) => {
+		let query = `SELECT * FROM ${DIARY_TABLE} WHERE topic = ${topic} AND category_id IS NULL;`;
+		if (categoryName !== null) {
+			query = `SELECT * FROM ${DIARY_TABLE} d INNER JOIN ${CATEGORY_TABLE} c LIMIT 1 WHERE d.topic = ${topic} AND c.name = ${categoryName};`;
+		}
+		const raw = await db.query(sql.type(diaryObj)`${query}`);
+		return raw.rows[0];
+	};
+
+	const deleteObjs = async (ids: Array<number>) => {
+		const uniqueIds = [...new Set(ids)];
+		const raw = await db.query(sql.type(countObj)`DELETE
+														 FROM ${DIARY_TABLE}
+														 WHERE id IN ${uniqueIds};`);
+		return raw.rows[0].count;
+	};
+
 	return {
 		create,
+		update,
+		getByCategorizedTopic,
+		deleteObjs,
 	};
 };
