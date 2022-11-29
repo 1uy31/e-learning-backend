@@ -1,51 +1,31 @@
 import { dbPool, NOTE_TABLE } from '@database/index';
-import { baseObj } from '@database/baseObjects';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
+import { createNoteObj, noteObj } from '@database/noteObjects';
+import { isDefined } from '@src/utils';
 
-const noteObject = baseObj
-	.extend({
-		content: z.string(),
-		note_position: z.number(),
-		image_url: z.string().nullable(),
-		source_url: z.string().nullable(),
-		diary_id: z.number().nullable(),
-	})
-	.transform((data) => ({
-		id: data.id,
-		createdAt: new Date(data.created_at),
-		updatedAt: data.updated_at ? new Date(data.updated_at) : null,
-		content: data.content,
-		notePosition: data.note_position,
-		imageUrl: data.image_url,
-		sourceUrl: data.source_url,
-		diaryId: data.diary_id,
-	}));
-
-export type Note = z.output<typeof noteObject>;
-
-type NoteCreateParams = {
-	content: string;
-	notePosition: number;
-	imageUrl?: string;
-	sourceUrl?: string;
-	diaryId?: number;
-};
+export type Note = z.output<typeof noteObj>;
 
 export type NoteConnector = {
-	create: (input: NoteCreateParams) => Promise<Note>;
+	create: (input: z.infer<typeof createNoteObj>) => Promise<Note>;
 };
 
 export const createNoteConnector = (db: DatabasePool = dbPool): NoteConnector => {
-	const create = async (input: NoteCreateParams) => {
-		const { content, notePosition, imageUrl, sourceUrl, diaryId } = input;
+	const create = async (input: z.infer<typeof createNoteObj>) => {
+		const parsedInput = createNoteObj.parse(input);
+		const keysToInsert = Object.entries(parsedInput)
+			.filter((item) => isDefined(item[1]))
+			.map((item) => item[0]);
+
+		const valuesToInsert = Object.values(parsedInput).filter(isDefined);
+
+		const identifiers = keysToInsert.map((key) => sql.identifier([key]));
+		const columns = sql.join(identifiers, sql.fragment`, `);
+		const values = sql.join(valuesToInsert, sql.fragment`, `);
+
 		const raw = await db.query(
-			sql.type(
-				noteObject
-			)`INSERT INTO ${NOTE_TABLE} (content, note_position, image_url, source_url, diary_id) VALUES (${content}, ${notePosition}, ${
-				imageUrl || null
-			}, ${sourceUrl || null}, ${diaryId || null}) RETURNING *;`
+			sql.type(noteObj)`INSERT INTO ${NOTE_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
 		return raw.rows[0];
 	};
