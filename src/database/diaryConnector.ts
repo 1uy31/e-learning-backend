@@ -19,7 +19,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 	const create = async (input: z.infer<typeof createDiaryObj>) => {
 		const parsedInput = createDiaryObj.parse(input);
 		const keysToInsert = Object.entries(parsedInput)
-			.filter((item) => item[1])
+			.filter((item) => isDefined(item[1]))
 			.map((item) => item[0]);
 
 		const valuesToInsert = Object.values(parsedInput).filter(isDefined);
@@ -38,7 +38,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 		const parsedInput = updateDiaryObj.parse(input);
 		const { id, ...restOfInput } = parsedInput;
 		const keysToUpdate = Object.entries(restOfInput)
-			.filter((item) => item[1])
+			.filter((item) => isDefined(item[1]))
 			.map((item) => item[0]);
 
 		const valuesToUpdate = Object.values(restOfInput).filter(isDefined);

@@ -4,6 +4,8 @@ import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
 import { categoryObj, createCategoryObj, updateCategoryObj } from '@database/categoryObjects';
+import { isDefined } from '@src/utils';
+import { createDiaryObj, updateDiaryObj } from '@database/diaryObjects';
 
 export type Category = z.output<typeof categoryObj>;
 
@@ -16,10 +18,17 @@ export type CategoryConnector = {
 
 export const createCategoryConnector = (db: DatabasePool = dbPool): CategoryConnector => {
 	const create = async (input: z.infer<typeof createCategoryObj>) => {
-		createCategoryObj.parse(input);
-		const identifiers = Object.keys(input).map((key) => sql.identifier([key]));
+		const parsedInput = createDiaryObj.parse(input);
+		const keysToInsert = Object.entries(parsedInput)
+			.filter((item) => isDefined(item[1]))
+			.map((item) => item[0]);
+
+		const valuesToInsert = Object.values(parsedInput).filter(isDefined);
+
+		const identifiers = keysToInsert.map((key) => sql.identifier([key]));
 		const columns = sql.join(identifiers, sql.fragment`, `);
-		const values = sql.join(Object.values(input), sql.fragment`, `);
+		const values = sql.join(valuesToInsert, sql.fragment`, `);
+
 		const raw = await db.query(
 			sql.type(categoryObj)`INSERT INTO ${CATEGORY_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
@@ -27,15 +36,13 @@ export const createCategoryConnector = (db: DatabasePool = dbPool): CategoryConn
 	};
 
 	const update = async (input: z.infer<typeof updateCategoryObj>) => {
-		updateCategoryObj.parse(input);
-		const { id, ...restOfInput } = input;
+		const parsedInput = updateDiaryObj.parse(input);
+		const { id, ...restOfInput } = parsedInput;
 		const keysToUpdate = Object.entries(restOfInput)
-			.filter((item) => item[1])
+			.filter((item) => isDefined(item[1]))
 			.map((item) => item[0]);
 
-		const valuesToUpdate = Object.entries(restOfInput)
-			.filter((item) => item[1])
-			.map((item) => item[1]);
+		const valuesToUpdate = Object.values(restOfInput).filter(isDefined);
 
 		const setData = sql.join(
 			keysToUpdate.map((column, idx) => {
