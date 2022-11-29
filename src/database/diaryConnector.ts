@@ -4,6 +4,7 @@ import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
 import { diaryObj, createDiaryObj, updateDiaryObj } from '@database/diaryObjects';
+import { isDefined } from '@src/utils';
 
 export type Diary = z.output<typeof diaryObj>;
 
@@ -16,14 +17,12 @@ export type DiaryConnector = {
 
 export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector => {
 	const create = async (input: z.infer<typeof createDiaryObj>) => {
-		createDiaryObj.parse(input);
-		const keysToInsert = Object.entries(input)
+		const parsedInput = createDiaryObj.parse(input);
+		const keysToInsert = Object.entries(parsedInput)
 			.filter((item) => item[1])
 			.map((item) => item[0]);
 
-		const valuesToInsert = Object.entries(input)
-			.filter((item) => item[1])
-			.map((item) => item[1]);
+		const valuesToInsert = Object.values(parsedInput).filter(isDefined);
 
 		const identifiers = keysToInsert.map((key) => sql.identifier([key]));
 		const columns = sql.join(identifiers, sql.fragment`, `);
@@ -36,15 +35,13 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 	};
 
 	const update = async (input: z.infer<typeof updateDiaryObj>) => {
-		updateDiaryObj.parse(input);
-		const { id, ...restOfInput } = input;
+		const parsedInput = updateDiaryObj.parse(input);
+		const { id, ...restOfInput } = parsedInput;
 		const keysToUpdate = Object.entries(restOfInput)
 			.filter((item) => item[1])
 			.map((item) => item[0]);
 
-		const valuesToUpdate = Object.entries(restOfInput)
-			.filter((item) => item[1])
-			.map((item) => item[1]);
+		const valuesToUpdate = Object.values(restOfInput).filter(isDefined);
 
 		const setData = sql.join(
 			keysToUpdate.map((column, idx) => {

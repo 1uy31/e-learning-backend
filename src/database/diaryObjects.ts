@@ -27,9 +27,27 @@ export const inputDiaryBaseObj = z.object({
 	categoryId: z.number().nullable().optional(),
 });
 
-export const createDiaryObj = inputDiaryBaseObj.extend({});
-export const updateDiaryObj = inputDiaryBaseObj.extend({
-	id: z.number().gte(1),
-	topic: z.string().max(1024).optional(),
-	reviewCount: z.number().gte(0).optional(),
+export const createDiaryObj = inputDiaryBaseObj.extend({}).transform((data) => {
+	const { sourceUrl, categoryId, ...restOfData } = data;
+	return {
+		...restOfData,
+		source_url: sourceUrl,
+		category_id: categoryId,
+	};
 });
+
+export const updateDiaryObj = inputDiaryBaseObj
+	.extend({
+		id: z.number().gte(1),
+		topic: z.string().max(1024).optional(),
+		reviewCount: z.number().gte(0).optional(),
+	})
+	.transform((data) => {
+		const { sourceUrl, categoryId, reviewCount, ...restOfData } = data;
+		return {
+			...restOfData,
+			source_url: sourceUrl,
+			category_id: categoryId,
+			review_count: reviewCount,
+		};
+	});
