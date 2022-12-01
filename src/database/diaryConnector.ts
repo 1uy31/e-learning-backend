@@ -67,10 +67,13 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 
 	const deleteObjs = async (ids: Array<number>) => {
 		const uniqueIds = [...new Set(ids)];
-		const raw = await db.query(sql.type(countObj)`DELETE
-														 FROM ${DIARY_TABLE}
-														 WHERE id IN ${uniqueIds};`);
-		return raw.rows[0].count;
+		const count = await db.transaction(async (connection) => {
+			const raw = await connection.query(
+				sql.type(countObj)`DELETE FROM ${DIARY_TABLE} WHERE id IN ${uniqueIds};`
+			);
+			return raw.rows[0].count;
+		});
+		return count;
 	};
 
 	return {
