@@ -8,7 +8,7 @@
 		"build": "tsc --project ./",
 		"prod": "node build/index.js",
 		"dev": "nodemon ./index.js",
-		"test": "ava",
+		"test": "node ./testSetup.js && ava",
 		"lintCheck": "npx eslint src",
 		"lintFix": "npx eslint src --fix",
 		"prettier": "prettier --write ."
