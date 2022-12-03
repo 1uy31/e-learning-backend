@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires,no-undef
 const exec = require('child_process').exec;
 
 const sh = async (/** @type {string} */ cmd) =>
