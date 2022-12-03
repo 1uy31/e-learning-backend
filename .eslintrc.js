@@ -22,5 +22,14 @@ module.exports = {
 				caughtErrorsIgnorePattern: "^_",
 			},
 		],
+		"prettier/prettier": [
+			"error",
+			{
+				singleQuote: false,
+				semi: true,
+				avoidEscape: true,
+				allowTemplateLiterals: true,
+			},
+		],
 	},
 };
