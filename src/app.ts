@@ -1,8 +1,8 @@
-import express, { Request, Response, Express } from 'express';
-import { graphqlHTTP } from 'express-graphql';
-import { buildSchema } from 'graphql';
+import express, { Request, Response, Express } from "express";
+import { graphqlHTTP } from "express-graphql";
+import { buildSchema } from "graphql";
 
-import { APP_CONFIG } from '@src/config';
+import { APP_CONFIG } from "@src/config";
 
 const app: Express = express();
 const schema = buildSchema(`
@@ -14,16 +14,16 @@ const schema = buildSchema(`
 // The root provides a resolver function for each API endpoint
 const root = {
 	hello: () => {
-		return 'Hello world!';
+		return "Hello world!";
 	},
 };
 
-app.get('/', (_req: Request, res: Response) => {
-	res.send('Hello World!');
+app.get("/", (_req: Request, res: Response) => {
+	res.send("Hello World!");
 });
 
 app.use(
-	'/graphql',
+	"/graphql",
 	graphqlHTTP({
 		schema: schema,
 		rootValue: root,

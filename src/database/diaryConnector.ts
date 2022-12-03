@@ -1,10 +1,10 @@
-import { DIARY_TABLE, CATEGORY_TABLE, getDbPool } from '@database/index';
-import { countObj } from '@database/baseObjects';
-import { DatabasePool } from 'slonik/dist/src/types';
-import { sql } from 'slonik';
-import { z } from 'zod';
-import { diaryObj, createDiaryObj, updateDiaryObj } from '@database/diaryObjects';
-import { isDefined } from '@src/utils';
+import { DIARY_TABLE, CATEGORY_TABLE, getDbPool } from "@database/index";
+import { countObj } from "@database/baseObjects";
+import { DatabasePool } from "slonik/dist/src/types";
+import { sql } from "slonik";
+import { z } from "zod";
+import { diaryObj, createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
+import { isDefined } from "@src/utils";
 
 export type Diary = z.output<typeof diaryObj>;
 

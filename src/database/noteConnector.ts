@@ -1,9 +1,9 @@
-import { getDbPool, NOTE_TABLE } from '@database/index';
-import { DatabasePool } from 'slonik/dist/src/types';
-import { sql } from 'slonik';
-import { z } from 'zod';
-import { createNoteObj, noteObj } from '@database/noteObjects';
-import { isDefined } from '@src/utils';
+import { getDbPool, NOTE_TABLE } from "@database/index";
+import { DatabasePool } from "slonik/dist/src/types";
+import { sql } from "slonik";
+import { z } from "zod";
+import { createNoteObj, noteObj } from "@database/noteObjects";
+import { isDefined } from "@src/utils";
 
 export type Note = z.output<typeof noteObj>;
 

@@ -1,10 +1,10 @@
-import { getDbPool, CATEGORY_TABLE } from '@database/index';
-import { countObj } from '@database/baseObjects';
-import { DatabasePool } from 'slonik/dist/src/types';
-import { sql } from 'slonik';
-import { z } from 'zod';
-import { categoryObj, createCategoryObj, updateCategoryObj } from '@database/categoryObjects';
-import { isDefined } from '@src/utils';
+import { getDbPool, CATEGORY_TABLE } from "@database/index";
+import { countObj } from "@database/baseObjects";
+import { DatabasePool } from "slonik/dist/src/types";
+import { sql } from "slonik";
+import { z } from "zod";
+import { categoryObj, createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
+import { isDefined } from "@src/utils";
 
 export type Category = z.output<typeof categoryObj>;
 

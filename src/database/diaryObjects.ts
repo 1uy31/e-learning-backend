@@ -1,5 +1,5 @@
-import { baseObj } from '@database/baseObjects';
-import { z } from 'zod';
+import { baseObj } from "@database/baseObjects";
+import { z } from "zod";
 
 export const diaryObj = baseObj
 	.extend({

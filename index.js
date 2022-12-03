@@ -1,5 +1,5 @@
-require('module-alias/register');
+require("module-alias/register");
 
-require('ts-node/register');
+require("ts-node/register");
 
-require('./src/app');
+require("./src/app");
