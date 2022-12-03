@@ -1,4 +1,4 @@
-import { dbPool, NOTE_TABLE } from '@database/index';
+import { getDbPool, NOTE_TABLE } from '@database/index';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
@@ -11,7 +11,8 @@ export type NoteConnector = {
 	create: (input: z.infer<typeof createNoteObj>) => Promise<Note>;
 };
 
-export const createNoteConnector = (db: DatabasePool = dbPool): NoteConnector => {
+export const createNoteConnector = async (dbPool?: DatabasePool): Promise<NoteConnector> => {
+	const db = dbPool || (await getDbPool());
 	const create = async (input: z.infer<typeof createNoteObj>) => {
 		const parsedInput = createNoteObj.parse(input);
 		const keysToInsert = Object.entries(parsedInput)
@@ -27,7 +28,7 @@ export const createNoteConnector = (db: DatabasePool = dbPool): NoteConnector =>
 		const raw = await db.query(
 			sql.type(noteObj)`INSERT INTO ${NOTE_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
-		return raw.rows[0];
+		return noteObj.parse(raw.rows[0]);
 	};
 
 	return {

@@ -1,4 +1,4 @@
-import { dbPool, DIARY_TABLE, CATEGORY_TABLE } from '@database/index';
+import { DIARY_TABLE, CATEGORY_TABLE, getDbPool } from '@database/index';
 import { countObj } from '@database/baseObjects';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
@@ -15,7 +15,8 @@ export type DiaryConnector = {
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector => {
+export const createDiaryConnector = async (dbPool?: DatabasePool): Promise<DiaryConnector> => {
+	const db = dbPool || (await getDbPool());
 	const create = async (input: z.infer<typeof createDiaryObj>) => {
 		const parsedInput = createDiaryObj.parse(input);
 		const keysToInsert = Object.entries(parsedInput)
@@ -31,7 +32,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 		const raw = await db.query(
 			sql.type(diaryObj)`INSERT INTO ${DIARY_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
-		return raw.rows[0];
+		return diaryObj.parse(raw.rows[0]);
 	};
 
 	const update = async (input: z.infer<typeof updateDiaryObj>) => {
@@ -53,7 +54,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 		const raw = await db.query(
 			sql.type(diaryObj)`UPDATE ${DIARY_TABLE} SET ${setData} WHERE id = ${id} RETURNING *;`
 		);
-		return raw.rows[0];
+		return raw.rows[0] ? diaryObj.parse(raw.rows[0]) : undefined;
 	};
 
 	const getByCategorizedTopic = async (categoryName: string | null, topic: string) => {
@@ -62,7 +63,7 @@ export const createDiaryConnector = (db: DatabasePool = dbPool): DiaryConnector 
 			query = `SELECT * FROM ${DIARY_TABLE} d INNER JOIN ${CATEGORY_TABLE} c LIMIT 1 WHERE d.topic = ${topic} AND c.name = ${categoryName};`;
 		}
 		const raw = await db.query(sql.type(diaryObj)`${query}`);
-		return raw.rows[0];
+		return raw.rows[0] ? diaryObj.parse(raw.rows[0]) : undefined;
 	};
 
 	const deleteObjs = async (ids: Array<number>) => {

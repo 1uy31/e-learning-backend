@@ -1,11 +1,10 @@
-import { dbPool, CATEGORY_TABLE } from '@database/index';
+import { getDbPool, CATEGORY_TABLE } from '@database/index';
 import { countObj } from '@database/baseObjects';
 import { DatabasePool } from 'slonik/dist/src/types';
 import { sql } from 'slonik';
 import { z } from 'zod';
 import { categoryObj, createCategoryObj, updateCategoryObj } from '@database/categoryObjects';
 import { isDefined } from '@src/utils';
-import { createDiaryObj, updateDiaryObj } from '@database/diaryObjects';
 
 export type Category = z.output<typeof categoryObj>;
 
@@ -16,9 +15,10 @@ export type CategoryConnector = {
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createCategoryConnector = (db: DatabasePool = dbPool): CategoryConnector => {
+export const createCategoryConnector = async (dbPool?: DatabasePool): Promise<CategoryConnector> => {
+	const db = dbPool || (await getDbPool());
 	const create = async (input: z.infer<typeof createCategoryObj>) => {
-		const parsedInput = createDiaryObj.parse(input);
+		const parsedInput = createCategoryObj.parse(input);
 		const keysToInsert = Object.entries(parsedInput)
 			.filter((item) => isDefined(item[1]))
 			.map((item) => item[0]);
@@ -32,11 +32,11 @@ export const createCategoryConnector = (db: DatabasePool = dbPool): CategoryConn
 		const raw = await db.query(
 			sql.type(categoryObj)`INSERT INTO ${CATEGORY_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
-		return raw.rows[0];
+		return categoryObj.parse(raw.rows[0]);
 	};
 
 	const update = async (input: z.infer<typeof updateCategoryObj>) => {
-		const parsedInput = updateDiaryObj.parse(input);
+		const parsedInput = updateCategoryObj.parse(input);
 		const { id, ...restOfInput } = parsedInput;
 		const keysToUpdate = Object.entries(restOfInput)
 			.filter((item) => isDefined(item[1]))
@@ -54,14 +54,14 @@ export const createCategoryConnector = (db: DatabasePool = dbPool): CategoryConn
 		const raw = await db.query(
 			sql.type(categoryObj)`UPDATE ${CATEGORY_TABLE} SET ${setData} WHERE id = ${id} RETURNING *;`
 		);
-		return raw.rows[0];
+		return raw.rows[0] ? categoryObj.parse(raw.rows[0]) : undefined;
 	};
 
 	const getByName = async (name: string) => {
 		const raw = await db.query(
 			sql.type(categoryObj)`SELECT * FROM ${CATEGORY_TABLE} LIMIT 1 WHERE name = ${name};`
 		);
-		return raw.rows[0];
+		return raw.rows[0] ? categoryObj.parse(raw.rows[0]) : undefined;
 	};
 
 	const deleteObjs = async (ids: Array<number>) => {
