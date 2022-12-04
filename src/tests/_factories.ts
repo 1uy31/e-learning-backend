@@ -13,7 +13,7 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 
 		return {
 			id: sequence,
-			name: `Category ${sequence}`,
+			name: faker.random.words(10),
 			createdAt: faker.date.soon(),
 			updatedAt: null,
 		};
@@ -22,18 +22,21 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 
 export const diaryFactory = Factory.define<Diary, { trx: DatabaseTransactionConnection; category?: Category }>(
 	({ sequence, onCreate, transientParams }) => {
+		// TODO remove sourceUrl?
 		const sourceUrl = faker.internet.domainName();
 		const categoryId = transientParams.category ? transientParams.category.id : null;
 
 		onCreate(async (diary) => {
 			const connector = await createDiaryConnector(transientParams.trx);
-			return await connector.create({ ...diary, sourceUrl });
+			const hey = await connector.create({ ...diary, sourceUrl, categoryId });
+			console.log("hey", hey);
+			return hey;
 		});
 
 		return {
 			id: sequence,
-			topic: `Topic ${sequence}`,
-			rate: sequence,
+			topic: faker.random.words(10),
+			rate: Math.floor(Math.random() * 11),
 			reviewCount: sequence,
 			sourceUrl: faker.internet.domainName(),
 			categoryId: categoryId,
