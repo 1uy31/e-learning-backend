@@ -10,12 +10,12 @@ import { categoryFactory } from "@src/tests/_factories";
 test("Create - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		const firstCategory = await connector.create({ name: "Category happy" });
-		t.is(firstCategory.name, "Category happy");
+		const firstCategory = await connector.create({ name: "Category A" });
+		t.is(firstCategory.name, "Category A");
 		t.truthy(firstCategory.createdAt instanceof Date);
 		t.is(firstCategory.updatedAt, null);
 
-		const secondCategory = await connector.create({ name: "Category unhappy" });
+		const secondCategory = await connector.create({ name: "Category B" });
 		t.is(secondCategory.id, firstCategory.id + 1);
 		t.truthy(secondCategory.createdAt.getTime() > firstCategory.createdAt.getTime());
 	}));
@@ -23,8 +23,8 @@ test("Create - Happy", async (t) =>
 test("Create - Name constraint violation", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		await connector.create({ name: "Category duplicated" });
-		await t.throwsAsync(() => connector.create({ name: "Category duplicated" }), {
+		await connector.create({ name: "Category C" });
+		await t.throwsAsync(() => connector.create({ name: "Category C" }), {
 			instanceOf: UniqueIntegrityConstraintViolationError,
 		});
 	}));
@@ -53,16 +53,16 @@ test("Update - Obj not found", async (t) =>
 test("Get by name - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		const category = await categoryFactory.create({ name: "Category get" }, { transient: { trx } });
+		const category = await categoryFactory.create({ name: "Category D" }, { transient: { trx } });
 
-		const queriedCategory = await connector.getByName("Category get");
+		const queriedCategory = await connector.getByName("Category D");
 		t.deepEqual(queriedCategory, category);
 	}));
 
 test("Get by name - Obj not found", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		await categoryFactory.create({ name: "Category get" }, { transient: { trx } });
+		await categoryFactory.create({ name: "Category F" }, { transient: { trx } });
 
 		const queriedCategory = await connector.getByName("Does not exists");
 		t.truthy(queriedCategory === undefined);
