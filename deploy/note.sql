@@ -13,7 +13,7 @@ CREATE TABLE e_learning_schema.note (
 	source_url VARCHAR(256) NULL,
 	diary_id INT4 NULL,
 	CONSTRAINT note_pkey PRIMARY KEY (id),
-	CONSTRAINT note_position_key UNIQUE (note_position),
+	CONSTRAINT note_fk_position_key UNIQUE (id, note_position),
 	CONSTRAINT note_diary_id_fkey FOREIGN KEY (diary_id) REFERENCES e_learning_schema.diary(id) ON DELETE CASCADE
 );
 
