@@ -30,8 +30,8 @@ type InsertingParser = typeof createCategoryObj | typeof createDiaryObj | typeof
 const parseInput = <T extends InsertingParser>(parser: T, input: z.input<T>) => {
 	const parsedInput = parser.parse(input);
 	const keys = Object.entries(parsedInput)
-		.filter((item) => isDefined(item[1]))
-		.map((item) => item[0]);
+		.filter(([_key, value]) => isDefined(value))
+		.map(([key, _value]) => key);
 
 	const values = Object.values(parsedInput).filter(isDefined);
 
@@ -73,8 +73,8 @@ export const parseUpdatingData = <T extends UpdatingParser>(parser: T, input: z.
 	const { id, ...restOfInput } = parsedInput;
 
 	const keysToUpdate = Object.entries(restOfInput)
-		.filter((item) => isDefined(item[1]))
-		.map((item) => item[0]);
+		.filter(([_key, value]) => isDefined(value))
+		.map(([key, _value]) => key);
 
 	const valuesToUpdate: Array<ValueExpression> = Object.values(restOfInput).filter(isDefined);
 

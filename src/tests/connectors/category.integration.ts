@@ -10,14 +10,14 @@ import { categoryFactory } from "@src/tests/_factories";
 test("Create - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		const firstCategory = await connector.create({ name: "Category A" });
-		t.is(firstCategory.name, "Category A");
-		t.truthy(firstCategory.createdAt instanceof Date);
-		t.is(firstCategory.updatedAt, null);
+		const categoryA = await connector.create({ name: "Category A" });
+		t.is(categoryA.name, "Category A");
+		t.truthy(categoryA.createdAt instanceof Date);
+		t.is(categoryA.updatedAt, null);
 
-		const secondCategory = await connector.create({ name: "Category B" });
-		t.is(secondCategory.id, firstCategory.id + 1);
-		t.truthy(secondCategory.createdAt.getTime() > firstCategory.createdAt.getTime());
+		const categoryB = await connector.create({ name: "Category B" });
+		t.is(categoryB.id, categoryA.id + 1);
+		t.truthy(categoryB.createdAt.getTime() > categoryA.createdAt.getTime());
 	}));
 
 test("Create - Name constraint violation", async (t) =>

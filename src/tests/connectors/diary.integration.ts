@@ -5,27 +5,28 @@ import { integrationTestWrapper } from "@src/tests/_utils";
 import { createDiaryConnector } from "@database/diaryConnector";
 import { categoryFactory, diaryFactory } from "@src/tests/_factories";
 import { UniqueIntegrityConstraintViolationError } from "slonik";
+import * as R from "ramda";
 
 test("Create - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
-		const firstDiary = await connector.create({
+		const creatingKwargs = {
 			topic: "Topic A",
 			sourceUrl: "sources.com",
 			rate: 5,
 			categoryId: category.id,
+		};
+		const diaryA = await connector.create(creatingKwargs);
+		Object.entries(creatingKwargs).map(([key, value]) => {
+			t.is(R.path([key], diaryA), value);
 		});
-		t.is(firstDiary.topic, "Topic A");
-		t.is(firstDiary.sourceUrl, "sources.com");
-		t.is(firstDiary.rate, 5);
-		t.is(firstDiary.categoryId, category.id);
-		t.truthy(firstDiary.createdAt instanceof Date);
-		t.is(firstDiary.updatedAt, null);
+		t.truthy(diaryA.createdAt instanceof Date);
+		t.is(diaryA.updatedAt, null);
 
-		const secondDiary = await connector.create({ topic: "Topic B" });
-		t.is(secondDiary.id, firstDiary.id + 1);
-		t.truthy(secondDiary.createdAt.getTime() > firstDiary.createdAt.getTime());
+		const diaryB = await connector.create({ topic: "Topic B" });
+		t.is(diaryB.id, diaryA.id + 1);
+		t.truthy(diaryB.createdAt.getTime() > diaryA.createdAt.getTime());
 	}));
 
 test("Create - Categorized topic constraint violation", async (t) =>
@@ -54,20 +55,21 @@ test("Update - Happy", async (t) =>
 		const category = await categoryFactory.create({}, { transient: { trx } });
 		const diary = await diaryFactory.create({}, { transient: { trx, category } });
 		t.is(diary.updatedAt, null);
-		const updatedDiary = await connector.update({
+		const updatingKwargs = {
 			id: diary.id,
 			topic: "New topic",
 			rate: 5,
 			reviewCount: 10,
-			sourceUrl: "http://source.com",
+			sourceUrl: "sources.com",
 			categoryId: undefined,
+		};
+		const updatedDiary = await connector.update(updatingKwargs);
+
+		Object.entries(updatingKwargs).map(([key, value]) => {
+			const newValue = value !== undefined ? value : R.path([key], diary);
+			t.is(R.path([key], updatedDiary), newValue);
 		});
 		t.truthy(updatedDiary?.updatedAt instanceof Date);
-		t.is(updatedDiary?.id, diary.id);
-		t.is(updatedDiary?.topic, "New topic");
-		t.is(updatedDiary?.rate, 5);
-		t.is(updatedDiary?.reviewCount, 10);
-		t.is(updatedDiary?.categoryId, diary.categoryId);
 	}));
 
 test("Update - Obj not found", async (t) =>
