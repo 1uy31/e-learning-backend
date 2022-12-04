@@ -1,3 +1,4 @@
+// TODO: better paths resolving
 import "module-alias/register.js";
 import "ts-node/register";
 import anyTest, { TestFn } from "ava";
@@ -11,12 +12,13 @@ test.before(async (t) => {
 	t.context = { connector: await createCategoryConnector() };
 });
 
+// TODO: better cleanup
 test.afterEach.always(async (_t) => {
 	const db = await getDbPool();
 	await db.query(sql.unsafe`TRUNCATE TABLE ${CATEGORY_TABLE} CASCADE;`);
 });
 
-test.serial("Create - happy", async (t) => {
+test.serial("Happy", async (t) => {
 	const firstCategory = await t.context.connector.create({ name: "First category" });
 	t.is(firstCategory.name, "First category");
 	t.truthy(firstCategory.createdAt instanceof Date);
@@ -27,7 +29,7 @@ test.serial("Create - happy", async (t) => {
 	t.truthy(secondCategory.createdAt.getTime() > firstCategory.createdAt.getTime());
 });
 
-test.serial("Create - name constraint violation", async (t) => {
+test.serial("Name constraint violation", async (t) => {
 	await t.context.connector.create({ name: "First category" });
 	await t.throwsAsync(() => t.context.connector.create({ name: "First category" }), {
 		instanceOf: UniqueIntegrityConstraintViolationError,
