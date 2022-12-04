@@ -1,7 +1,7 @@
 import { DIARY_TABLE, CATEGORY_TABLE, getDbPool, parseInsertingData, parseUpdatingData } from "@database/index";
 import { countObj } from "@database/baseObjects";
-import { DatabasePool, DatabasePoolConnection } from "slonik/dist/src/types";
-import { sql } from "slonik";
+import { DatabasePool } from "slonik/dist/src/types";
+import { DatabaseTransactionConnection, sql } from "slonik";
 import { z } from "zod";
 import { diaryObj, createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
 
@@ -14,7 +14,9 @@ export type DiaryConnector = {
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createDiaryConnector = async (dbPool?: DatabasePool | DatabasePoolConnection): Promise<DiaryConnector> => {
+export const createDiaryConnector = async (
+	dbPool?: DatabasePool | DatabaseTransactionConnection
+): Promise<DiaryConnector> => {
 	const db = dbPool || (await getDbPool());
 
 	const create = async (input: z.input<typeof createDiaryObj>) => {

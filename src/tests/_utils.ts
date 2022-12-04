@@ -1,18 +1,22 @@
-import { DatabasePoolConnection } from "slonik";
+import { DatabaseTransactionConnection } from "slonik";
 import { getDbPool } from "@src/database";
 
-type TestFunction = (connection: DatabasePoolConnection) => Promise<void>;
+type TestFunction = (connection: DatabaseTransactionConnection) => Promise<void>;
 
 export const integrationTestWrapper = async (testFunction: TestFunction) => {
 	const db = await getDbPool();
 	db.connect(async (connection) => {
-		await testFunction(connection);
+		connection
+			.transaction(async (trx) => {
+				await testFunction(trx);
 
-		try {
-			/* To rollback transaction at the end of the test. */
-			throw new Error();
-		} catch (_err) {
-			/* empty */
-		}
+				try {
+					/* To rollback transaction at the end of the test. */
+					throw new Error();
+				} catch (_err) {
+					/* empty */
+				}
+			})
+			.then((_r) => ({}));
 	}).then((_r) => ({}));
 };

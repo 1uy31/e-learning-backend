@@ -1,6 +1,6 @@
 import { getDbPool, NOTE_TABLE, parseInsertingData } from "@database/index";
 import { DatabasePool } from "slonik/dist/src/types";
-import { sql } from "slonik";
+import { DatabaseTransactionConnection, sql } from "slonik";
 import { z } from "zod";
 import { createNoteObj, noteObj } from "@database/noteObjects";
 
@@ -10,7 +10,9 @@ export type NoteConnector = {
 	create: (input: z.input<typeof createNoteObj>) => Promise<Note>;
 };
 
-export const createNoteConnector = async (dbPool?: DatabasePool): Promise<NoteConnector> => {
+export const createNoteConnector = async (
+	dbPool?: DatabasePool | DatabaseTransactionConnection
+): Promise<NoteConnector> => {
 	const db = dbPool || (await getDbPool());
 	const create = async (input: z.input<typeof createNoteObj>) => {
 		const { columns, values } = parseInsertingData(createNoteObj, input);
