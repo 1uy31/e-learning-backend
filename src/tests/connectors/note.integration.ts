@@ -5,6 +5,7 @@ import { integrationTestWrapper } from "@src/tests/_utils";
 import { createNoteConnector } from "@database/noteConnector";
 import { diaryFactory } from "@src/tests/_factories";
 import * as R from "ramda";
+import { faker } from "@faker-js/faker";
 import { UniqueIntegrityConstraintViolationError } from "slonik";
 
 test("Create - Happy", async (t) =>
@@ -12,10 +13,10 @@ test("Create - Happy", async (t) =>
 		const connector = await createNoteConnector(trx);
 		const diary = await diaryFactory.create({}, { transient: { trx } });
 		const creatingKwargs = {
-			notePosition: 1,
-			content: "Note A",
-			sourceUrl: "sources.com",
-			imageUrl: "images.com",
+			notePosition: parseInt(faker.random.numeric(2)),
+			content: faker.random.words(),
+			sourceUrl: faker.internet.domainName(),
+			imageUrl: faker.internet.domainName(),
 			diaryId: diary.id,
 		};
 		const noteA = await connector.create(creatingKwargs);
@@ -25,9 +26,12 @@ test("Create - Happy", async (t) =>
 		t.truthy(noteA.createdAt instanceof Date);
 		t.is(noteA.updatedAt, null);
 
-		const noteB = await connector.create({ content: "Note B", notePosition: 2 });
-		t.is(noteB.id, noteA.id + 1);
-		t.truthy(noteB.createdAt.getTime() > noteA.createdAt.getTime());
+		const noteB = await connector.create({
+			content: faker.random.words(),
+			notePosition: parseInt(faker.random.numeric(2)),
+		});
+		t.truthy(noteB.id > noteA.id);
+		t.truthy(noteB.createdAt.getTime() >= noteA.createdAt.getTime());
 	}));
 
 test("Create - Diary ID and note position constraint violation", async (t) =>
@@ -35,7 +39,7 @@ test("Create - Diary ID and note position constraint violation", async (t) =>
 		const connector = await createNoteConnector(trx);
 		const diary = await diaryFactory.create({}, { transient: { trx } });
 		const creatingKwargs = {
-			notePosition: 1,
+			notePosition: parseInt(faker.random.numeric(2)),
 			diaryId: diary.id,
 		};
 		await connector.create(creatingKwargs);
