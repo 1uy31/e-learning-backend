@@ -1,6 +1,6 @@
 import { DIARY_TABLE, CATEGORY_TABLE, getDbPool, parseInsertingData, parseUpdatingData } from "@database/index";
 import { countObj } from "@database/baseObjects";
-import { DatabasePool } from "slonik/dist/src/types";
+import { DatabasePool, DatabasePoolConnection } from "slonik/dist/src/types";
 import { sql } from "slonik";
 import { z } from "zod";
 import { diaryObj, createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
@@ -8,15 +8,16 @@ import { diaryObj, createDiaryObj, updateDiaryObj } from "@database/diaryObjects
 export type Diary = z.output<typeof diaryObj>;
 
 export type DiaryConnector = {
-	create: (input: z.infer<typeof createDiaryObj>) => Promise<Diary>;
-	update: (input: z.infer<typeof updateDiaryObj>) => Promise<Diary | undefined>;
+	create: (input: z.input<typeof createDiaryObj>) => Promise<Diary>;
+	update: (input: z.input<typeof updateDiaryObj>) => Promise<Diary | undefined>;
 	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Diary | undefined>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createDiaryConnector = async (dbPool?: DatabasePool): Promise<DiaryConnector> => {
+export const createDiaryConnector = async (dbPool?: DatabasePool | DatabasePoolConnection): Promise<DiaryConnector> => {
 	const db = dbPool || (await getDbPool());
-	const create = async (input: z.infer<typeof createDiaryObj>) => {
+
+	const create = async (input: z.input<typeof createDiaryObj>) => {
 		const { columns, values } = parseInsertingData(createDiaryObj, input);
 
 		const raw = await db.query(
@@ -25,7 +26,7 @@ export const createDiaryConnector = async (dbPool?: DatabasePool): Promise<Diary
 		return raw.rows[0];
 	};
 
-	const update = async (input: z.infer<typeof updateDiaryObj>) => {
+	const update = async (input: z.input<typeof updateDiaryObj>) => {
 		const { id, dataSetter } = parseUpdatingData(updateDiaryObj, input);
 
 		const raw = await db.query(

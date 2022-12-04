@@ -7,12 +7,12 @@ import { createNoteObj, noteObj } from "@database/noteObjects";
 export type Note = z.output<typeof noteObj>;
 
 export type NoteConnector = {
-	create: (input: z.infer<typeof createNoteObj>) => Promise<Note>;
+	create: (input: z.input<typeof createNoteObj>) => Promise<Note>;
 };
 
 export const createNoteConnector = async (dbPool?: DatabasePool): Promise<NoteConnector> => {
 	const db = dbPool || (await getDbPool());
-	const create = async (input: z.infer<typeof createNoteObj>) => {
+	const create = async (input: z.input<typeof createNoteObj>) => {
 		const { columns, values } = parseInsertingData(createNoteObj, input);
 
 		const raw = await db.query(

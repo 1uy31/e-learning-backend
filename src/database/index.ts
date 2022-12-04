@@ -27,7 +27,7 @@ type InsertingParser = typeof createCategoryObj | typeof createDiaryObj | typeof
  * 		keys: A list of keys corresponding to the above values
  * }
  */
-const parseInput = <T extends InsertingParser>(parser: T, input: z.infer<T>) => {
+const parseInput = <T extends InsertingParser>(parser: T, input: z.input<T>) => {
 	const parsedInput = parser.parse(input);
 	const keys = Object.entries(parsedInput)
 		.filter((item) => isDefined(item[1]))
@@ -48,7 +48,7 @@ const parseInput = <T extends InsertingParser>(parser: T, input: z.infer<T>) => 
  * 		columns: comma separated columns usable in SQL query
  * 		values: comma separated values usable in SQL query
  */
-export const parseInsertingData = <T extends InsertingParser>(parser: T, input: z.infer<T>) => {
+export const parseInsertingData = <T extends InsertingParser>(parser: T, input: z.input<T>) => {
 	const { keys: keysToInsert, values: valuesToInsert } = parseInput(parser, input);
 	const identifiers = keysToInsert.map((key) => sql.identifier([key]));
 	const columns = sql.join(identifiers, sql.fragment`, `);
@@ -68,7 +68,7 @@ type UpdatingParser = typeof updateCategoryObj | typeof updateDiaryObj;
  * 		id: the ID of the object to be updated
  * 		dataSetter: comma separated column=value pairs usable for SET command in SQL query
  */
-export const parseUpdatingData = <T extends UpdatingParser>(parser: T, input: z.infer<T>) => {
+export const parseUpdatingData = <T extends UpdatingParser>(parser: T, input: z.input<T>) => {
 	const parsedInput = parser.parse(input);
 	const { id, ...restOfInput } = parsedInput;
 

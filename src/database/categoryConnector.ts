@@ -8,8 +8,8 @@ import { categoryObj, createCategoryObj, updateCategoryObj } from "@database/cat
 export type Category = z.output<typeof categoryObj>;
 
 export type CategoryConnector = {
-	create: (input: z.infer<typeof createCategoryObj>) => Promise<Category>;
-	update: (input: z.infer<typeof updateCategoryObj>) => Promise<Category | undefined>;
+	create: (input: z.input<typeof createCategoryObj>) => Promise<Category>;
+	update: (input: z.input<typeof updateCategoryObj>) => Promise<Category | undefined>;
 	getByName: (name: string) => Promise<Category | undefined>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
@@ -19,7 +19,7 @@ export const createCategoryConnector = async (
 ): Promise<CategoryConnector> => {
 	const db = dbPool || (await getDbPool());
 
-	const create = async (input: z.infer<typeof createCategoryObj>) => {
+	const create = async (input: z.input<typeof createCategoryObj>) => {
 		const { columns, values } = parseInsertingData(createCategoryObj, input);
 
 		const raw = await db.query(
@@ -28,7 +28,7 @@ export const createCategoryConnector = async (
 		return raw.rows[0];
 	};
 
-	const update = async (input: z.infer<typeof updateCategoryObj>) => {
+	const update = async (input: z.input<typeof updateCategoryObj>) => {
 		const { id, dataSetter } = parseUpdatingData(updateCategoryObj, input);
 
 		const raw = await db.query(
