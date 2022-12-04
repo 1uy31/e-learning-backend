@@ -91,7 +91,7 @@ test("Get by categorized topic - Happy", async (t) =>
 		t.truthy((await connector.getByCategorizedTopic(category.name, diaryE.topic)) === undefined);
 	}));
 
-test("Get by name - Obj not found", async (t) =>
+test("Get by categorized topic - Obj not found", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		await categoryFactory.create({ name: "Category F" }, { transient: { trx } });
@@ -110,7 +110,7 @@ test("Delete - Happy", async (t) =>
 		t.is(count, 3);
 	}));
 
-test("Delete - Obj does not exist", async (t) =>
+test("Delete - Objs do not exist", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const count = await connector.deleteObjs([1, 2, 3]);

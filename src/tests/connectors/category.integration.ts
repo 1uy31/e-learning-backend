@@ -78,7 +78,7 @@ test("Delete - Happy", async (t) =>
 		t.is(count, 3);
 	}));
 
-test("Delete - Obj does not exist", async (t) =>
+test("Delete - Objs do not exist", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const count = await connector.deleteObjs([1, 2, 3]);
