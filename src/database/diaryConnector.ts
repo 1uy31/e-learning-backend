@@ -10,7 +10,7 @@ export type Diary = z.output<typeof diaryObj>;
 export type DiaryConnector = {
 	create: (input: z.input<typeof createDiaryObj>) => Promise<Diary>;
 	update: (input: z.input<typeof updateDiaryObj>) => Promise<Diary | undefined>;
-	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Diary | undefined>;
+	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Array<Diary>>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
@@ -38,12 +38,19 @@ export const createDiaryConnector = async (
 	};
 
 	const getByCategorizedTopic = async (categoryName: string | null, topic: string) => {
-		let query = `SELECT * FROM ${DIARY_TABLE} WHERE topic = ${topic} AND category_id IS NULL;`;
-		if (categoryName !== null) {
-			query = `SELECT * FROM ${DIARY_TABLE} d INNER JOIN ${CATEGORY_TABLE} c WHERE d.topic = ${topic} AND c.name = ${categoryName} LIMIT 1;`;
+		if (categoryName === null) {
+			const raw = await db.query(
+				sql.type(diaryObj)`SELECT * FROM ${DIARY_TABLE} WHERE topic = ${topic} AND category_id IS NULL;`
+			);
+			return raw.rows;
 		}
-		const raw = await db.query(sql.type(diaryObj)`${query}`);
-		return raw.rows[0];
+
+		const raw = await db.query(
+			sql.type(
+				diaryObj
+			)`SELECT * FROM ${DIARY_TABLE} d INNER JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE d.topic = ${topic} AND c.name = ${categoryName};`
+		);
+		return raw.rows;
 	};
 
 	const deleteObjs = async (ids: Array<number>) => {
@@ -51,7 +58,7 @@ export const createDiaryConnector = async (
 		const raw = await db.query(
 			sql.type(countObj)`
 			WITH deleted AS (
-			    DELETE FROM ${DIARY_TABLE} WHERE id IN (${sql.join(uniqueIds, sql.fragment`, `)}) 
+			    DELETE FROM ${DIARY_TABLE} WHERE id IN (${sql.join(uniqueIds, sql.fragment`, `)})
 				RETURNING *
 			) SELECT COUNT(*) FROM deleted;
 			`
@@ -62,6 +69,9 @@ export const createDiaryConnector = async (
 	return {
 		create,
 		update,
+		// FIXME
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
 		getByCategorizedTopic,
 		deleteObjs,
 	};
