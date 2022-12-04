@@ -32,6 +32,7 @@
 	},
 	"devDependencies": {
 		"@ava/typescript": "^3.0.1",
+		"@faker-js/faker": "^7.6.0",
 		"@types/express": "^4.17.14",
 		"@types/node": "^18.11.10",
 		"@typescript-eslint/eslint-plugin": "^5.44.0",
@@ -40,10 +41,10 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-prettier": "^4.2.1",
+		"fishery": "^2.2.2",
 		"nodemon": "^2.0.20",
 		"pre-commit": "^1.2.2",
 		"prettier": "^2.8.0",
-		"sinon": "^15.0.0",
 		"ts-node": "^10.9.1",
 		"typescript": "^4.9.3"
 	},
@@ -64,9 +65,6 @@
 		"failWithoutAssertions": false,
 		"environmentVariables": {
 			"DATABASE_URL": "postgresql://p0stgr3s:p0stgr3s@localhost:5432/e_learning_test"
-		},
-		"file": [
-			"!**/exclude-files-with-this-name.*"
-		]
+		}
 	}
 }
