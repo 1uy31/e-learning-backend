@@ -1,10 +1,9 @@
-import { getDbPool, CATEGORY_TABLE } from "@database/index";
+import { getDbPool, CATEGORY_TABLE, parseInsertingData, parseUpdatingData } from "@database/index";
 import { countObj } from "@database/baseObjects";
 import { DatabasePool } from "slonik/dist/src/types";
 import { sql } from "slonik";
 import { z } from "zod";
 import { categoryObj, createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
-import { isDefined } from "@src/utils";
 
 export type Category = z.output<typeof categoryObj>;
 
@@ -18,61 +17,41 @@ export type CategoryConnector = {
 export const createCategoryConnector = async (dbPool?: DatabasePool): Promise<CategoryConnector> => {
 	const db = dbPool || (await getDbPool());
 	const create = async (input: z.infer<typeof createCategoryObj>) => {
-		const parsedInput = createCategoryObj.parse(input);
-		const keysToInsert = Object.entries(parsedInput)
-			.filter((item) => isDefined(item[1]))
-			.map((item) => item[0]);
-
-		const valuesToInsert = Object.values(parsedInput).filter(isDefined);
-
-		const identifiers = keysToInsert.map((key) => sql.identifier([key]));
-		const columns = sql.join(identifiers, sql.fragment`, `);
-		const values = sql.join(valuesToInsert, sql.fragment`, `);
+		const { columns, values } = parseInsertingData(createCategoryObj, input);
 
 		const raw = await db.query(
 			sql.type(categoryObj)`INSERT INTO ${CATEGORY_TABLE} (${columns}) VALUES (${values}) RETURNING *;`
 		);
-		return categoryObj.parse(raw.rows[0]);
+		return raw.rows[0];
 	};
 
 	const update = async (input: z.infer<typeof updateCategoryObj>) => {
-		const parsedInput = updateCategoryObj.parse(input);
-		const { id, ...restOfInput } = parsedInput;
-		const keysToUpdate = Object.entries(restOfInput)
-			.filter((item) => isDefined(item[1]))
-			.map((item) => item[0]);
-
-		const valuesToUpdate = Object.values(restOfInput).filter(isDefined);
-
-		const setData = sql.join(
-			keysToUpdate.map((column, idx) => {
-				return sql.fragment`${sql.identifier([column])} = ${valuesToUpdate[idx]}`;
-			}),
-			sql.fragment`,`
-		);
+		const { id, dataSetter } = parseUpdatingData(updateCategoryObj, input);
 
 		const raw = await db.query(
-			sql.type(categoryObj)`UPDATE ${CATEGORY_TABLE} SET ${setData} WHERE id = ${id} RETURNING *;`
+			sql.type(categoryObj)`UPDATE ${CATEGORY_TABLE} SET ${dataSetter} WHERE id = ${id} RETURNING *;`
 		);
-		return raw.rows[0] ? categoryObj.parse(raw.rows[0]) : undefined;
+		return raw.rows[0];
 	};
 
 	const getByName = async (name: string) => {
 		const raw = await db.query(
-			sql.type(categoryObj)`SELECT * FROM ${CATEGORY_TABLE} LIMIT 1 WHERE name = ${name};`
+			sql.type(categoryObj)`SELECT * FROM ${CATEGORY_TABLE} WHERE name = ${name} LIMIT 1;`
 		);
-		return raw.rows[0] ? categoryObj.parse(raw.rows[0]) : undefined;
+		return raw.rows[0];
 	};
 
 	const deleteObjs = async (ids: Array<number>) => {
 		const uniqueIds = [...new Set(ids)];
-		const count = await db.transaction(async (connection) => {
-			const raw = await connection.query(
-				sql.type(countObj)`DELETE FROM ${CATEGORY_TABLE} WHERE id IN ${uniqueIds};`
-			);
-			return raw.rows[0].count;
-		});
-		return count;
+		const raw = await db.query(
+			sql.type(countObj)`
+			WITH deleted AS (
+			    DELETE FROM ${CATEGORY_TABLE} WHERE id IN (${sql.join(uniqueIds, sql.fragment`, `)}) 
+				RETURNING *
+			) SELECT COUNT(*) FROM deleted;
+			`
+		);
+		return raw.rows[0].count;
 	};
 
 	return {
