@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const noteObj = baseObj
 	.extend({
-		content: z.string(),
+		content: z.string().nullable(),
 		note_position: z.number(),
 		image_url: z.string().nullable(),
 		source_url: z.string().nullable(),
