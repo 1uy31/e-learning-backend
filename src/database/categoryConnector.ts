@@ -1,6 +1,6 @@
-import { getDbPool, CATEGORY_TABLE, parseInsertingData, parseUpdatingData } from "@database/index";
+import { CATEGORY_TABLE, getDbPool, parseInsertingData, parseUpdatingData } from "@database/index";
 import { countObj } from "@database/baseObjects";
-import { DatabasePool } from "slonik/dist/src/types";
+import { DatabasePool, DatabasePoolConnection } from "slonik/dist/src/types";
 import { sql } from "slonik";
 import { z } from "zod";
 import { categoryObj, createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
@@ -14,8 +14,11 @@ export type CategoryConnector = {
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createCategoryConnector = async (dbPool?: DatabasePool): Promise<CategoryConnector> => {
+export const createCategoryConnector = async (
+	dbPool?: DatabasePool | DatabasePoolConnection
+): Promise<CategoryConnector> => {
 	const db = dbPool || (await getDbPool());
+
 	const create = async (input: z.infer<typeof createCategoryObj>) => {
 		const { columns, values } = parseInsertingData(createCategoryObj, input);
 
