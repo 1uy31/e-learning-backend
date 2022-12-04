@@ -9,14 +9,10 @@ export const integrationTestWrapper = async (testFunction: TestFunction) => {
 		connection
 			.transaction(async (trx) => {
 				await testFunction(trx);
-
-				try {
-					/* To rollback transaction at the end of the test. */
-					throw new Error();
-				} catch (_err) {
-					/* empty */
-				}
+				/* To rollback transaction at the end of the test. */
+				throw new Error();
 			})
-			.then((_r) => ({}));
+			.then((_r) => ({}))
+			.catch((_err) => ({}));
 	}).then((_r) => ({}));
 };
