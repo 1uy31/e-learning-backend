@@ -38,3 +38,14 @@ export const createNoteObj = inputNoteBaseObj.extend({}).transform((data) => {
 		diary_id: diaryId,
 	};
 });
+
+export const updateNoteObj = inputNoteBaseObj.extend({ id: z.number().gte(1) }).transform((data) => {
+	const { notePosition, imageUrl, sourceUrl, diaryId, ...restOfData } = data;
+	return {
+		...restOfData,
+		note_position: notePosition,
+		image_url: imageUrl,
+		source_url: sourceUrl,
+		diary_id: diaryId,
+	};
+});

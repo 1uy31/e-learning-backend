@@ -1,7 +1,13 @@
-import { DIARY_TABLE, CATEGORY_TABLE, getDbPool, parseInsertingData, parseUpdatingData } from "@database/index";
-import { countObj } from "@database/baseObjects";
-import { DatabasePool } from "slonik/dist/src/types";
-import { DatabaseTransactionConnection, sql } from "slonik";
+import {
+	DIARY_TABLE,
+	CATEGORY_TABLE,
+	getDbPool,
+	parseInsertingData,
+	parseUpdatingData,
+	SqlConnection,
+	deleteDbObjs,
+} from "@database/index";
+import { sql } from "slonik";
 import { z } from "zod";
 import { diaryObj, createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
 
@@ -14,9 +20,7 @@ export type DiaryConnector = {
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
-export const createDiaryConnector = async (
-	dbPool?: DatabasePool | DatabaseTransactionConnection
-): Promise<DiaryConnector> => {
+export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<DiaryConnector> => {
 	const db = dbPool || (await getDbPool());
 
 	const create = async (input: z.input<typeof createDiaryObj>) => {
@@ -53,18 +57,7 @@ export const createDiaryConnector = async (
 		return raw.rows;
 	};
 
-	const deleteObjs = async (ids: Array<number>) => {
-		const uniqueIds = [...new Set(ids)];
-		const raw = await db.query(
-			sql.type(countObj)`
-			WITH deleted AS (
-			    DELETE FROM ${DIARY_TABLE} WHERE id IN (${sql.join(uniqueIds, sql.fragment`, `)})
-				RETURNING *
-			) SELECT COUNT(*) FROM deleted;
-			`
-		);
-		return raw.rows[0].count;
-	};
+	const deleteObjs = async (ids: Array<number>) => await deleteDbObjs(db, DIARY_TABLE, ids);
 
 	return {
 		create,

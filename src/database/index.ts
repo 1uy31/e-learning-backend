@@ -1,16 +1,21 @@
-import { createPool, sql, ValueExpression } from "slonik";
+import { createPool, DatabaseTransactionConnection, IdentifierSqlToken, sql, ValueExpression } from "slonik";
 import { APP_CONFIG } from "@src/config";
 import { createResultParserInterceptor } from "@database/interceptors";
 import { z } from "zod";
 import { isDefined } from "@src/utils";
 import { createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
 import { createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
-import { createNoteObj } from "@database/noteObjects";
+import { createNoteObj, updateNoteObj } from "@database/noteObjects";
+import { countObj } from "@database/baseObjects";
+import { DatabasePool } from "slonik/dist/src/types";
+import { DatabasePoolConnection } from "slonik/src/types";
 
 const SCHEMA_NAME = "e_learning_schema";
 export const CATEGORY_TABLE = sql.identifier([SCHEMA_NAME, "category"]);
 export const DIARY_TABLE = sql.identifier([SCHEMA_NAME, "diary"]);
 export const NOTE_TABLE = sql.identifier([SCHEMA_NAME, "note"]);
+
+export type SqlConnection = DatabasePool | DatabasePoolConnection | DatabaseTransactionConnection;
 
 export const getDbPool = async () =>
 	await createPool(APP_CONFIG.DATABASE_URL || "", {
@@ -59,7 +64,7 @@ export const parseInsertingData = <T extends InsertingParser>(parser: T, input: 
 	};
 };
 
-type UpdatingParser = typeof updateCategoryObj | typeof updateDiaryObj;
+type UpdatingParser = typeof updateCategoryObj | typeof updateDiaryObj | typeof updateNoteObj;
 
 /**
  * Using the parser (zod object) to parse the input and filter out undefined values.
@@ -89,4 +94,20 @@ export const parseUpdatingData = <T extends UpdatingParser>(parser: T, input: z.
 		id,
 		dataSetter,
 	};
+};
+
+/**
+ * Delete from the database table all the objects with ID in the ids and return the number of deleted objects.
+ */
+export const deleteDbObjs = async (db: SqlConnection, table: IdentifierSqlToken, ids: Array<number>) => {
+	const uniqueIds = [...new Set(ids)];
+	const raw = await db.query(
+		sql.type(countObj)`
+			WITH deleted AS (
+			    DELETE FROM ${table} WHERE id IN (${sql.join(uniqueIds, sql.fragment`, `)}) 
+				RETURNING *
+			) SELECT COUNT(*) FROM deleted;
+			`
+	);
+	return raw.rows[0].count;
 };
