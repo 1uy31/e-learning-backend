@@ -1,4 +1,12 @@
-import { createPool, DatabaseTransactionConnection, IdentifierSqlToken, sql, ValueExpression } from "slonik";
+import {
+	createPool,
+	DatabaseTransactionConnection,
+	IdentifierSqlToken,
+	sql,
+	ValueExpression,
+	DatabasePool,
+	DatabasePoolConnection,
+} from "slonik";
 import { APP_CONFIG } from "@src/config";
 import { createResultParserInterceptor } from "@database/interceptors";
 import { z } from "zod";
@@ -7,8 +15,6 @@ import { createCategoryObj, updateCategoryObj } from "@database/categoryObjects"
 import { createDiaryObj, updateDiaryObj } from "@database/diaryObjects";
 import { createNoteObj, updateNoteObj } from "@database/noteObjects";
 import { countObj } from "@database/baseObjects";
-import { DatabasePool } from "slonik/dist/src/types";
-import { DatabasePoolConnection } from "slonik/src/types";
 
 const SCHEMA_NAME = "e_learning_schema";
 export const CATEGORY_TABLE = sql.identifier([SCHEMA_NAME, "category"]);
