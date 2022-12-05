@@ -8,7 +8,7 @@ import { UniqueIntegrityConstraintViolationError } from "slonik";
 import * as R from "ramda";
 import { faker } from "@faker-js/faker";
 
-test("Create - Happy", async (t) =>
+test("create_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -30,7 +30,7 @@ test("Create - Happy", async (t) =>
 		t.truthy(diaryB.createdAt.getTime() >= diaryA.createdAt.getTime());
 	}));
 
-test("Create - Categorized topic constraint violation", async (t) =>
+test("create_categorizedTopicConstraintViolation", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -50,7 +50,7 @@ test("Create - Categorized topic constraint violation", async (t) =>
 		);
 	}));
 
-test("Update - Happy", async (t) =>
+test("update_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -74,7 +74,7 @@ test("Update - Happy", async (t) =>
 		t.truthy(updatedDiary?.updatedAt instanceof Date);
 	}));
 
-test("Update - Obj not found", async (t) =>
+test("update_objNotFound", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		await diaryFactory.create({}, { transient: { trx } });
@@ -83,7 +83,7 @@ test("Update - Obj not found", async (t) =>
 		t.truthy(updatedDiary === undefined);
 	}));
 
-test("Get by categorized topic - Happy", async (t) =>
+test("getByCategorizedTopic_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -99,7 +99,7 @@ test("Get by categorized topic - Happy", async (t) =>
 		t.is(anotherQueriedDiaries?.length, 1);
 	}));
 
-test("Delete - Happy", async (t) =>
+test("delete_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const diaries = await Promise.all([1, 2, 3].map((_i) => diaryFactory.create({}, { transient: { trx } })));
@@ -109,7 +109,7 @@ test("Delete - Happy", async (t) =>
 		t.is(count, 3);
 	}));
 
-test("Delete - Objs do not exist", async (t) =>
+test("delete_objsDoNotExist", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const count = await connector.deleteObjs([1, 2, 3]);

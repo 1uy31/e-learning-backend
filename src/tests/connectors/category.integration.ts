@@ -8,7 +8,7 @@ import { integrationTestWrapper } from "@src/tests/_utils";
 import { faker } from "@faker-js/faker";
 import { categoryFactory } from "@src/tests/_factories";
 
-test("Create - Happy", async (t) =>
+test("create_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const categoryName = faker.random.words(10);
@@ -22,7 +22,7 @@ test("Create - Happy", async (t) =>
 		t.truthy(categoryB.createdAt.getTime() >= categoryA.createdAt.getTime());
 	}));
 
-test("Create - Name constraint violation", async (t) =>
+test("create_nameConstraintViolation", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const creatingKwargs = {
@@ -34,7 +34,7 @@ test("Create - Name constraint violation", async (t) =>
 		});
 	}));
 
-test("Update - Happy", async (t) =>
+test("update_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -46,7 +46,7 @@ test("Update - Happy", async (t) =>
 		t.is(updatedCategory?.name, "New name");
 	}));
 
-test("Update - Obj not found", async (t) =>
+test("update_objNotFound", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		await categoryFactory.create({}, { transient: { trx } });
@@ -55,7 +55,7 @@ test("Update - Obj not found", async (t) =>
 		t.truthy(updatedCategory === undefined);
 	}));
 
-test("Get by name - Happy", async (t) =>
+test("getByName_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -64,7 +64,7 @@ test("Get by name - Happy", async (t) =>
 		t.deepEqual(queriedCategory, category);
 	}));
 
-test("Get by name - Obj not found", async (t) =>
+test("getByName_objNotFound", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		await categoryFactory.create({ name: "Category Great" }, { transient: { trx } });
@@ -73,7 +73,7 @@ test("Get by name - Obj not found", async (t) =>
 		t.truthy(queriedCategory === undefined);
 	}));
 
-test("Delete - Happy", async (t) =>
+test("delete_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const categories = await Promise.all([1, 2, 3].map((_i) => categoryFactory.create({}, { transient: { trx } })));
@@ -83,7 +83,7 @@ test("Delete - Happy", async (t) =>
 		t.is(count, 3);
 	}));
 
-test("Delete - Objs do not exist", async (t) =>
+test("delete_objsDoNotExist", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
 		const count = await connector.deleteObjs([1, 2, 3]);
