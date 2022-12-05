@@ -3,6 +3,7 @@ import { Category, createCategoryConnector } from "@database/categoryConnector";
 import { faker } from "@faker-js/faker";
 import { DatabaseTransactionConnection } from "slonik";
 import { createDiaryConnector, Diary } from "@database/diaryConnector";
+import { createNoteConnector, Note } from "@database/noteConnector";
 
 export const categoryFactory = Factory.define<Category, { trx: DatabaseTransactionConnection }>(
 	({ sequence, onCreate, transientParams }) => {
@@ -22,7 +23,7 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 
 export const diaryFactory = Factory.define<Diary, { trx: DatabaseTransactionConnection; category?: Category }>(
 	({ sequence, onCreate, transientParams }) => {
-		const categoryId = transientParams.category ? transientParams.category.id : null;
+		const categoryId = transientParams.category?.id || null;
 
 		onCreate(async (diary: Diary) => {
 			const connector = await createDiaryConnector(transientParams.trx);
@@ -36,6 +37,28 @@ export const diaryFactory = Factory.define<Diary, { trx: DatabaseTransactionConn
 			reviewCount: sequence,
 			sourceUrl: faker.internet.domainName(),
 			categoryId: categoryId,
+			createdAt: faker.date.soon(),
+			updatedAt: null,
+		};
+	}
+);
+
+export const noteFactory = Factory.define<Note, { trx: DatabaseTransactionConnection; diary?: Diary }>(
+	({ sequence, onCreate, transientParams }) => {
+		const diaryId = transientParams.diary?.id || null;
+
+		onCreate(async (note: Note) => {
+			const connector = await createNoteConnector(transientParams.trx);
+			return await connector.create({ ...note, diaryId });
+		});
+
+		return {
+			id: sequence,
+			content: faker.random.words(20),
+			notePosition: sequence,
+			imageUrl: faker.internet.domainName(),
+			sourceUrl: faker.internet.domainName(),
+			diaryId,
 			createdAt: faker.date.soon(),
 			updatedAt: null,
 		};

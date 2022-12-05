@@ -3,7 +3,7 @@ import "ts-node/register";
 import test from "ava";
 import { integrationTestWrapper } from "@src/tests/_utils";
 import { createNoteConnector } from "@database/noteConnector";
-import { diaryFactory } from "@src/tests/_factories";
+import { diaryFactory, noteFactory } from "@src/tests/_factories";
 import * as R from "ramda";
 import { faker } from "@faker-js/faker";
 import { UniqueIntegrityConstraintViolationError } from "slonik";
@@ -21,7 +21,7 @@ test("Create - Happy", async (t) =>
 		};
 		const noteA = await connector.create(creatingKwargs);
 		Object.entries(creatingKwargs).map(([key, value]) => {
-			t.is(R.path([key], noteA), value);
+			t.is(R.path([key], noteA), value, `Failed on asserting ${key}`);
 		});
 		t.truthy(noteA.createdAt instanceof Date);
 		t.is(noteA.updatedAt, null);
@@ -46,4 +46,72 @@ test("Create - Diary ID and note position constraint violation", async (t) =>
 		await t.throwsAsync(() => connector.create(creatingKwargs), {
 			instanceOf: UniqueIntegrityConstraintViolationError,
 		});
+	}));
+
+test("Update - Happy", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createNoteConnector(trx);
+		const diary = await diaryFactory.create({}, { transient: { trx } });
+		const note = await noteFactory.create({}, { transient: { trx, diary } });
+		t.is(note.updatedAt, null);
+
+		const updatingKwargs = {
+			id: note.id,
+			content: faker.random.words(20),
+			notePosition: 5,
+			imageUrl: faker.internet.domainName(),
+			sourceUrl: faker.internet.domainName(),
+			diaryId: undefined,
+		};
+		const updatedNote = await connector.update(updatingKwargs);
+
+		Object.entries(updatingKwargs).map(([key, value]) => {
+			const newValue = value !== undefined ? value : R.path([key], note);
+			t.is(R.path([key], updatedNote), newValue, `Failed on asserting ${key}`);
+		});
+		t.truthy(updatedNote?.updatedAt instanceof Date);
+	}));
+
+test("Update - Obj not found", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createNoteConnector(trx);
+		await noteFactory.create({}, { transient: { trx } });
+
+		const updatedNote = await connector.update({ id: 1000, content: "New content" });
+		t.truthy(updatedNote === undefined);
+	}));
+
+test("Get by diary - Happy", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createNoteConnector(trx);
+		const diary = await diaryFactory.create({}, { transient: { trx } });
+		const anotherDiary = await diaryFactory.create({}, { transient: { trx } });
+		const fakedNotes = await Promise.all(
+			[1, 2, 3].map((_i) => noteFactory.create({}, { transient: { trx, diary } }))
+		);
+		const queriedNotes = await connector.getByDiary(diary.id);
+		t.is(queriedNotes?.length, 3);
+		fakedNotes.forEach((note) => {
+			const queriedNote = queriedNotes?.find((n) => n.id === note.id);
+			t.deepEqual(queriedNote, note);
+		});
+
+		t.deepEqual(await connector.getByDiary(anotherDiary.id), []);
+	}));
+
+test("Delete - Happy", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createNoteConnector(trx);
+		const notes = await Promise.all([1, 2, 3].map((_i) => noteFactory.create({}, { transient: { trx } })));
+		const ids = notes.map((note) => note.id);
+
+		const count = await connector.deleteObjs(ids);
+		t.is(count, 3);
+	}));
+
+test("Delete - Objs do not exist", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createNoteConnector(trx);
+		const count = await connector.deleteObjs([1, 2, 3]);
+		t.is(count, 0);
 	}));

@@ -1,6 +1,5 @@
 import {
 	deleteDbObjs,
-	DIARY_TABLE,
 	getDbPool,
 	NOTE_TABLE,
 	parseInsertingData,
@@ -41,7 +40,7 @@ export const createNoteConnector = async (dbPool?: SqlConnection): Promise<NoteC
 	};
 
 	const getByDiary = async (diaryId: number) => {
-		const raw = await db.query(sql.type(noteObj)`SELECT * FROM ${DIARY_TABLE} WHERE diary_id = ${diaryId};`);
+		const raw = await db.query(sql.type(noteObj)`SELECT * FROM ${NOTE_TABLE} WHERE diary_id = ${diaryId};`);
 		return raw.rows;
 	};
 
