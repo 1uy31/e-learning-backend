@@ -22,15 +22,11 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 
 export const diaryFactory = Factory.define<Diary, { trx: DatabaseTransactionConnection; category?: Category }>(
 	({ sequence, onCreate, transientParams }) => {
-		// TODO remove sourceUrl?
-		const sourceUrl = faker.internet.domainName();
 		const categoryId = transientParams.category ? transientParams.category.id : null;
 
-		onCreate(async (diary) => {
+		onCreate(async (diary: Diary) => {
 			const connector = await createDiaryConnector(transientParams.trx);
-			const hey = await connector.create({ ...diary, sourceUrl, categoryId });
-			console.log("hey", hey);
-			return hey;
+			return await connector.create({ ...diary, categoryId });
 		});
 
 		return {

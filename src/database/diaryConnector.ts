@@ -10,7 +10,7 @@ export type Diary = z.output<typeof diaryObj>;
 export type DiaryConnector = {
 	create: (input: z.input<typeof createDiaryObj>) => Promise<Diary>;
 	update: (input: z.input<typeof updateDiaryObj>) => Promise<Diary | undefined>;
-	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Array<Diary>>;
+	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Readonly<Array<Diary>>>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
@@ -48,7 +48,7 @@ export const createDiaryConnector = async (
 		const raw = await db.query(
 			sql.type(
 				diaryObj
-			)`SELECT * FROM ${DIARY_TABLE} d INNER JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE d.topic = ${topic} AND c.name = ${categoryName};`
+			)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE d.topic = ${topic} AND c.name = ${categoryName};`
 		);
 		return raw.rows;
 	};
@@ -69,9 +69,6 @@ export const createDiaryConnector = async (
 	return {
 		create,
 		update,
-		// FIXME
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		getByCategorizedTopic,
 		deleteObjs,
 	};

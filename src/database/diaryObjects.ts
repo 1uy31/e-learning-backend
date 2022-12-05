@@ -22,7 +22,7 @@ export const diaryObj = baseObj
 
 export const inputDiaryBaseObj = z.object({
 	topic: z.string().max(1024),
-	sourceUrl: z.string().max(256).optional(),
+	sourceUrl: z.string().max(256).nullable().optional(),
 	rate: z.number().nullable().optional(),
 	categoryId: z.number().nullable().optional(),
 });

@@ -89,10 +89,10 @@ test("Get by categorized topic - Happy", async (t) =>
 		const category = await categoryFactory.create({ name: faker.random.words(10) }, { transient: { trx } });
 		const diaryA = await diaryFactory.create({ topic: faker.random.words(10) }, { transient: { trx, category } });
 		const diaryB = await diaryFactory.create({ topic: faker.random.words(10) }, { transient: { trx } });
+
 		const queriedDiaries = await connector.getByCategorizedTopic(category.name, diaryA.topic);
 		t.is(queriedDiaries?.length, 1);
-		// FIXME, issue with factory?s
-		// t.deepEqual(queriedDiaries && queriedDiaries[0], diaryA);
+		t.deepEqual(queriedDiaries && queriedDiaries[0], diaryA);
 
 		t.deepEqual(await connector.getByCategorizedTopic(category.name, diaryB.topic), []);
 		const anotherQueriedDiaries = await connector.getByCategorizedTopic(null, diaryB.topic);
