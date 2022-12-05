@@ -58,9 +58,9 @@ test("Update - Obj not found", async (t) =>
 test("Get by name - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createCategoryConnector(trx);
-		const category = await categoryFactory.create({ name: "Category Great" }, { transient: { trx } });
+		const category = await categoryFactory.create({}, { transient: { trx } });
 
-		const queriedCategory = await connector.getByName("Category Great");
+		const queriedCategory = await connector.getByName(category.name);
 		t.deepEqual(queriedCategory, category);
 	}));
 

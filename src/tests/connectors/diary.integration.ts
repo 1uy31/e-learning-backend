@@ -20,7 +20,7 @@ test("Create - Happy", async (t) =>
 		};
 		const diaryA = await connector.create(creatingKwargs);
 		Object.entries(creatingKwargs).map(([key, value]) => {
-			t.is(R.path([key], diaryA), value);
+			t.is(R.path([key], diaryA), value, `Failed on asserting ${key}`);
 		});
 		t.truthy(diaryA.createdAt instanceof Date);
 		t.is(diaryA.updatedAt, null);
@@ -69,7 +69,7 @@ test("Update - Happy", async (t) =>
 
 		Object.entries(updatingKwargs).map(([key, value]) => {
 			const newValue = value !== undefined ? value : R.path([key], diary);
-			t.is(R.path([key], updatedDiary), newValue);
+			t.is(R.path([key], updatedDiary), newValue, `Failed on asserting ${key}`);
 		});
 		t.truthy(updatedDiary?.updatedAt instanceof Date);
 	}));
@@ -86,9 +86,9 @@ test("Update - Obj not found", async (t) =>
 test("Get by categorized topic - Happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
-		const category = await categoryFactory.create({ name: faker.random.words(10) }, { transient: { trx } });
-		const diaryA = await diaryFactory.create({ topic: faker.random.words(10) }, { transient: { trx, category } });
-		const diaryB = await diaryFactory.create({ topic: faker.random.words(10) }, { transient: { trx } });
+		const category = await categoryFactory.create({}, { transient: { trx } });
+		const diaryA = await diaryFactory.create({}, { transient: { trx, category } });
+		const diaryB = await diaryFactory.create({}, { transient: { trx } });
 
 		const queriedDiaries = await connector.getByCategorizedTopic(category.name, diaryA.topic);
 		t.is(queriedDiaries?.length, 1);
