@@ -1,0 +1,73 @@
+{
+	"name": "e-learning-backend",
+	"version": "1.0.0",
+	"main": "./index.js",
+	"author": "Tuyet Tran <1uy31.tran@gmail.com>",
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc --project ./",
+		"prod": "node build/index.js",
+		"dev": "nodemon ./index.js",
+		"test": "node ./testSetup.js && ava",
+		"lintCheck": "npx eslint src",
+		"lintFix": "npx eslint src --fix",
+		"prettier": "prettier --write ."
+	},
+	"pre-commit": [
+		"prettier",
+		"lintFix"
+	],
+	"_moduleAliases": {
+		"@src": "./src/",
+		"@database": "./src/database/",
+		"@schemata": "./src/schemata/",
+		"@services": "./src/services/"
+	},
+	"dependencies": {
+		"@apollo/server": "^4.6.0",
+		"dotenv": "^16.0.3",
+		"graphql": "^15.3.0",
+		"module-alias": "^2.2.2",
+		"ramda": "^0.28.0",
+		"slonik": "^33.0.3",
+		"zod": "^3.19.1"
+	},
+	"devDependencies": {
+		"@ava/typescript": "^3.0.1",
+		"@faker-js/faker": "^7.6.0",
+		"@types/express": "^4.17.14",
+		"@types/node": "^18.11.10",
+		"@types/ramda": "^0.28.20",
+		"@typescript-eslint/eslint-plugin": "^5.44.0",
+		"@typescript-eslint/parser": "^5.44.0",
+		"ava": "^5.1.0",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"fishery": "^2.2.2",
+		"nodemon": "^2.0.20",
+		"pre-commit": "^1.2.2",
+		"prettier": "^2.8.0",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.9.3"
+	},
+	"ava": {
+		"typescript": {
+			"rewritePaths": {
+				"src/": "build/"
+			},
+			"compile": "tsc"
+		},
+		"verbose": true,
+		"nodeArguments": [
+			"--trace-deprecation",
+			"--napi-modules"
+		],
+		"concurrency": 2,
+		"failFast": true,
+		"failWithoutAssertions": false,
+		"environmentVariables": {
+			"DATABASE_URL": "postgresql://p0stgr3s:p0stgr3s@localhost:5432/e_learning_test"
+		}
+	}
+}
