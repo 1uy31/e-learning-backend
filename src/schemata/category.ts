@@ -12,7 +12,7 @@ export const categoryTypedef = `
   
   type Categories {
     total: Int
-    data: [Category]
+    categories: [Category]
   }
   
   extend type Query {

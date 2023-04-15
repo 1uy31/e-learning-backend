@@ -63,9 +63,20 @@ test("getAll_happy", async (t) =>
 		);
 
 		const queriedCategories = await connector.getAll("", 2, 1);
-		t.deepEqual(queriedCategories[0], categories[1]);
-		t.deepEqual(queriedCategories[1], categories[2]);
-		t.is(queriedCategories.length, 2);
+		t.deepEqual(queriedCategories.categories[0], categories[8]);
+		t.deepEqual(queriedCategories.categories[1], categories[7]);
+		t.is(queriedCategories.total, 10);
+	}));
+
+test("getAll_filterByName", async (t) =>
+	integrationTestWrapper(async (trx) => {
+		const connector = await createCategoryConnector(trx);
+		await Promise.all(Array.from({ length: 10 }, () => categoryFactory.create({}, { transient: { trx } })));
+		const testCategory = await categoryFactory.create({ name: "testCategory" }, { transient: { trx } });
+
+		const queriedCategories = await connector.getAll("testCategory", 2, 0);
+		t.deepEqual(queriedCategories.categories[0], testCategory);
+		t.is(queriedCategories.total, 1);
 	}));
 
 test("getAll_empty", async (t) =>
@@ -73,25 +84,7 @@ test("getAll_empty", async (t) =>
 		const connector = await createCategoryConnector(trx);
 
 		const queriedCategories = await connector.getAll("", 2, 1);
-		t.is(queriedCategories.length, 0);
-	}));
-
-test("getByName_happy", async (t) =>
-	integrationTestWrapper(async (trx) => {
-		const connector = await createCategoryConnector(trx);
-		const category = await categoryFactory.create({}, { transient: { trx } });
-
-		const queriedCategory = await connector.getByName(category.name);
-		t.deepEqual(queriedCategory, category);
-	}));
-
-test("getByName_objNotFound", async (t) =>
-	integrationTestWrapper(async (trx) => {
-		const connector = await createCategoryConnector(trx);
-		await categoryFactory.create({ name: "Category Great" }, { transient: { trx } });
-
-		const queriedCategory = await connector.getByName("Does not exists");
-		t.truthy(queriedCategory === undefined);
+		t.is(queriedCategories.total, 0);
 	}));
 
 test("delete_happy", async (t) =>

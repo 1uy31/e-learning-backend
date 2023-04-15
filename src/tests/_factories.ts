@@ -5,7 +5,7 @@ import { DatabaseTransactionConnection } from "slonik";
 import { createDiaryConnector, Diary } from "@database/diaryConnector";
 import { createNoteConnector, Note } from "@database/noteConnector";
 
-export const categoryFactory = Factory.define<Category, { trx: DatabaseTransactionConnection }>(
+export const categoryFactory = Factory.define<Category, { trx: DatabaseTransactionConnection; name?: string }>(
 	({ sequence, onCreate, transientParams }) => {
 		onCreate(async (category) => {
 			const connector = await createCategoryConnector(transientParams.trx);
@@ -14,7 +14,7 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 
 		return {
 			id: sequence,
-			name: faker.random.words(10),
+			name: transientParams.name || faker.random.words(10),
 			createdAt: faker.date.soon(),
 			updatedAt: null,
 		};
