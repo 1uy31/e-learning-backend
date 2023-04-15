@@ -44,7 +44,7 @@ export const createCategoryConnector = async (dbPool?: SqlConnection): Promise<C
 		return raw.rows[0];
 	};
 
-	const getAll = async (name = "", limit = 2, offset = 0) => {
+	const getAll = async (name = "", limit = 10, offset = 0) => {
 		const namePattern = `%${name.toLowerCase()}%`;
 		const countQueryResult = await db.query(
 			sql.type(
