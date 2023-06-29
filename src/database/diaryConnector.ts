@@ -16,7 +16,11 @@ export type Diary = z.output<typeof diaryObj>;
 export type DiaryConnector = {
 	create: (input: z.input<typeof createDiaryObj>) => Promise<Diary>;
 	update: (input: z.input<typeof updateDiaryObj>) => Promise<Diary | undefined>;
-	getByCategorizedTopic: (categoryName: string | null, topic: string) => Promise<Readonly<Array<Diary>>>;
+	getByCategorizedTopic: (
+		topic?: string,
+		categoryId?: number,
+		categoryName?: string
+	) => Promise<Readonly<Array<Diary>>>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
@@ -41,18 +45,31 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		return raw.rows[0];
 	};
 
-	const getByCategorizedTopic = async (categoryName: string | null, topic: string) => {
-		if (categoryName === null) {
+	const getByCategorizedTopic = async (topic = "", categoryId?: number, categoryName?: string) => {
+		const topicPattern = `%${topic.toLowerCase()}%`;
+		if (categoryId) {
 			const raw = await db.query(
-				sql.type(diaryObj)`SELECT * FROM ${DIARY_TABLE} WHERE topic = ${topic} AND category_id IS NULL;`
+				sql.type(
+					diaryObj
+				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id = ${categoryId} AND LOWER(topic) LIKE ${topicPattern};`
 			);
 			return raw.rows;
 		}
 
+		if (!categoryName) {
+			const raw = await db.query(
+				sql.type(
+					diaryObj
+				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id IS NULL AND LOWER(topic) LIKE ${topicPattern};`
+			);
+			return raw.rows;
+		}
+
+		const categoryNamePattern = `%${categoryName.toLowerCase()}%`;
 		const raw = await db.query(
 			sql.type(
 				diaryObj
-			)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE d.topic = ${topic} AND c.name = ${categoryName};`
+			)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE LOWER(c.name) LIKE ${categoryNamePattern} AND LOWER(topic) LIKE ${topicPattern};`
 		);
 		return raw.rows;
 	};

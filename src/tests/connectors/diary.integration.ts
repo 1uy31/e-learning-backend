@@ -90,13 +90,44 @@ test("getByCategorizedTopic_happy", async (t) =>
 		const diaryA = await diaryFactory.create({}, { transient: { trx, category } });
 		const diaryB = await diaryFactory.create({}, { transient: { trx } });
 
-		const queriedDiaries = await connector.getByCategorizedTopic(category.name, diaryA.topic);
-		t.is(queriedDiaries?.length, 1);
-		t.deepEqual(queriedDiaries && queriedDiaries[0], diaryA);
-
-		t.deepEqual(await connector.getByCategorizedTopic(category.name, diaryB.topic), []);
-		const anotherQueriedDiaries = await connector.getByCategorizedTopic(null, diaryB.topic);
-		t.is(anotherQueriedDiaries?.length, 1);
+		for (const testCase of [
+			{
+				topic: diaryA.topic,
+				categoryId: undefined,
+				categoryName: category.name,
+				diaries: [diaryA],
+				expectedCount: 1,
+			},
+			{
+				topic: diaryA.topic,
+				categoryId: category.id,
+				categoryName: undefined,
+				diaries: [diaryA],
+				expectedCount: 1,
+			},
+			{
+				topic: diaryB.topic,
+				categoryId: undefined,
+				categoryName: undefined,
+				diaries: [diaryB],
+				expectedCount: 1,
+			},
+			{
+				topic: undefined,
+				categoryId: undefined,
+				categoryName: undefined,
+				diaries: [diaryB],
+				expectedCount: 1,
+			},
+		]) {
+			const targetDiaryAQuery = await connector.getByCategorizedTopic(
+				testCase.topic,
+				testCase.categoryId,
+				testCase.categoryName
+			);
+			t.is(targetDiaryAQuery?.length, testCase.expectedCount);
+			t.deepEqual(targetDiaryAQuery, testCase.diaries);
+		}
 	}));
 
 test("delete_happy", async (t) =>
