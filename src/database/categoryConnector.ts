@@ -54,7 +54,7 @@ export const createCategoryConnector = async (dbPool?: SqlConnection): Promise<C
 		const categoriesQueryResult = await db.query(
 			sql.type(
 				categoryObj
-			)`SELECT * FROM ${CATEGORY_TABLE} WHERE LOWER(name) LIKE ${namePattern} ORDER BY id DESC LIMIT ${limit} OFFSET ${offset};`
+			)`SELECT * FROM ${CATEGORY_TABLE} WHERE LOWER(name) LIKE ${namePattern} ORDER BY id ASC LIMIT ${limit} OFFSET ${offset};`
 		);
 		return { total: countQueryResult.rows[0].count, categories: categoriesQueryResult.rows };
 	};

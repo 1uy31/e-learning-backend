@@ -63,8 +63,8 @@ test("getAll_happy", async (t) =>
 		);
 
 		const queriedCategories = await connector.getAll("", 2, 1);
-		t.deepEqual(queriedCategories.categories[0], categories[8]);
-		t.deepEqual(queriedCategories.categories[1], categories[7]);
+		t.deepEqual(queriedCategories.categories[0], categories[1]);
+		t.deepEqual(queriedCategories.categories[1], categories[2]);
 		t.is(queriedCategories.total, 10);
 	}));
 
