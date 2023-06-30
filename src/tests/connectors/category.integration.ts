@@ -6,7 +6,7 @@ import { createCategoryConnector } from "@database/categoryConnector";
 import { UniqueIntegrityConstraintViolationError } from "slonik";
 import { integrationTestWrapper } from "@src/tests/_utils";
 import { faker } from "@faker-js/faker";
-import { categoryFactory } from "@src/tests/_factories";
+import { categoryFactory, diaryFactory } from "@src/tests/_factories";
 
 test("create_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
@@ -63,8 +63,8 @@ test("getAll_happy", async (t) =>
 		);
 
 		const queriedCategories = await connector.getAll("", 2, 1);
-		t.deepEqual(queriedCategories.categories[0], categories[1]);
-		t.deepEqual(queriedCategories.categories[1], categories[2]);
+		t.deepEqual(queriedCategories.categories[0], { ...categories[1], diaryCount: 0 });
+		t.deepEqual(queriedCategories.categories[1], { ...categories[2], diaryCount: 0 });
 		t.is(queriedCategories.total, 10);
 	}));
 
@@ -73,9 +73,10 @@ test("getAll_filterByName", async (t) =>
 		const connector = await createCategoryConnector(trx);
 		await Promise.all(Array.from({ length: 10 }, () => categoryFactory.create({}, { transient: { trx } })));
 		const testCategory = await categoryFactory.create({ name: "testCategory" }, { transient: { trx } });
+		await diaryFactory.create({}, { transient: { trx, category: testCategory } });
 
 		const queriedCategories = await connector.getAll("testCategory", 2, 0);
-		t.deepEqual(queriedCategories.categories[0], testCategory);
+		t.deepEqual(queriedCategories.categories[0], { ...testCategory, diaryCount: 1 });
 		t.is(queriedCategories.total, 1);
 	}));
 
