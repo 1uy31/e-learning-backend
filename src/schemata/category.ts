@@ -8,12 +8,19 @@ export const categoryTypedef = `
     name: String
     createdAt: Date
     updatedAt: Date
+  }
+  
+  type ExtendedCategory {
+    id: Int
+    name: String
+    createdAt: Date
+    updatedAt: Date
     diaryCount: Int
   }
   
   type Categories {
     total: Int
-    categories: [Category]
+    categories: [ExtendedCategory]
   }
   
   extend type Query {

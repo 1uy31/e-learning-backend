@@ -1,10 +1,10 @@
-import { Category, createCategoryConnector } from "@database/categoryConnector";
+import { Category, ExtendedCategory, createCategoryConnector } from "@database/categoryConnector";
 
 export type CategoryService = {
 	getAll: (
 		_obj: never,
 		kwargs: { name?: string; limit?: number; offset?: number }
-	) => Promise<{ total: number; categories: Readonly<Array<Category>> }>;
+	) => Promise<{ total: number; categories: Readonly<Array<ExtendedCategory>> }>;
 	create: (_obj: never, kwargs: { name: string }) => Promise<Category>;
 };
 
