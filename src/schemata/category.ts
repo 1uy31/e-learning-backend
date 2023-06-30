@@ -8,6 +8,7 @@ export const categoryTypedef = `
     name: String
     createdAt: Date
     updatedAt: Date
+    diaryCount: Int
   }
   
   type Categories {

@@ -67,9 +67,8 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 
 		const categoryNamePattern = `%${categoryName.toLowerCase()}%`;
 		const raw = await db.query(
-			sql.type(
-				diaryObj
-			)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id WHERE LOWER(c.name) LIKE ${categoryNamePattern} AND LOWER(topic) LIKE ${topicPattern};`
+			sql.type(diaryObj)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id 
+           WHERE LOWER(c.name) LIKE ${categoryNamePattern} AND LOWER(topic) LIKE ${topicPattern};`
 		);
 		return raw.rows;
 	};

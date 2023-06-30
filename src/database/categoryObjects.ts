@@ -12,6 +12,19 @@ export const categoryObj = baseObj
 		name: data.name,
 	}));
 
+export const extendedCategoryObj = baseObj
+	.extend({
+		name: z.string(),
+		diary_count: z.number(),
+	})
+	.transform((data) => ({
+		id: data.id,
+		createdAt: new Date(data.created_at),
+		updatedAt: data.updated_at ? new Date(data.updated_at) : null,
+		name: data.name,
+		diaryCount: data.diary_count,
+	}));
+
 export const inputCategoryBaseObj = z.object({
 	name: z.string().max(256),
 });

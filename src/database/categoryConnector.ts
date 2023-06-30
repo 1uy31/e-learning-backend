@@ -1,5 +1,6 @@
 import {
 	CATEGORY_TABLE,
+	DIARY_TABLE,
 	deleteDbObjs,
 	getDbPool,
 	parseInsertingData,
@@ -8,9 +9,10 @@ import {
 } from "@database/index";
 import { sql } from "slonik";
 import { z } from "zod";
-import { categoryObj, createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
+import { categoryObj, extendedCategoryObj, createCategoryObj, updateCategoryObj } from "@database/categoryObjects";
 
 export type Category = z.output<typeof categoryObj>;
+export type ExtendedCategory = z.output<typeof extendedCategoryObj>;
 
 export type CategoryConnector = {
 	create: (input: z.input<typeof createCategoryObj>) => Promise<Category>;
@@ -19,7 +21,7 @@ export type CategoryConnector = {
 		name?: string,
 		limit?: number,
 		offset?: number
-	) => Promise<{ total: number; categories: Readonly<Array<Category>> }>;
+	) => Promise<{ total: number; categories: Readonly<Array<ExtendedCategory>> }>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
 
@@ -53,8 +55,10 @@ export const createCategoryConnector = async (dbPool?: SqlConnection): Promise<C
 		);
 		const categoriesQueryResult = await db.query(
 			sql.type(
-				categoryObj
-			)`SELECT * FROM ${CATEGORY_TABLE} WHERE LOWER(name) LIKE ${namePattern} ORDER BY id ASC LIMIT ${limit} OFFSET ${offset};`
+				extendedCategoryObj
+			)`SELECT c.*, COUNT(d.*) AS diary_count FROM ${CATEGORY_TABLE} c LEFT JOIN ${DIARY_TABLE} d 
+    			ON d.category_id = c.id WHERE LOWER(c.name) LIKE ${namePattern} 
+				GROUP BY c.id ORDER BY c.id ASC LIMIT ${limit} OFFSET ${offset};`
 		);
 		return { total: countQueryResult.rows[0].count, categories: categoriesQueryResult.rows };
 	};
