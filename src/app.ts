@@ -3,10 +3,11 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { globalTypeDef } from "@schemata/index";
 import { categoryResolver, categoryTypedef } from "@schemata/category";
+import { diaryResolver, diaryTypedef } from "@schemata/diary";
 
 const server = new ApolloServer({
-	typeDefs: [globalTypeDef, categoryTypedef],
-	resolvers: categoryResolver,
+	typeDefs: [globalTypeDef, categoryTypedef, diaryTypedef],
+	resolvers: [categoryResolver, diaryResolver],
 });
 
 let url;
