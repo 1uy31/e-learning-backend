@@ -51,7 +51,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 			const raw = await db.query(
 				sql.type(
 					diaryObj
-				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id = ${categoryId} AND LOWER(topic) LIKE ${topicPattern};`
+				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id = ${categoryId} AND LOWER(topic) LIKE ${topicPattern} ORDER BY id ASC;`
 			);
 			return raw.rows;
 		}
@@ -60,7 +60,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 			const raw = await db.query(
 				sql.type(
 					diaryObj
-				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id IS NULL AND LOWER(topic) LIKE ${topicPattern};`
+				)`SELECT * FROM ${DIARY_TABLE} WHERE category_id IS NULL AND LOWER(topic) LIKE ${topicPattern} ORDER BY id ASC;`
 			);
 			return raw.rows;
 		}
@@ -68,7 +68,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		const categoryNamePattern = `%${categoryName.toLowerCase()}%`;
 		const raw = await db.query(
 			sql.type(diaryObj)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c ON d.category_id = c.id 
-           WHERE LOWER(c.name) LIKE ${categoryNamePattern} AND LOWER(topic) LIKE ${topicPattern};`
+           WHERE LOWER(c.name) LIKE ${categoryNamePattern} AND LOWER(topic) LIKE ${topicPattern} ORDER BY d.id ASC;`
 		);
 		return raw.rows;
 	};
