@@ -89,6 +89,8 @@ test("getByCategorizedTopic_happy", async (t) =>
 		const category = await categoryFactory.create({}, { transient: { trx } });
 		const diaryA = await diaryFactory.create({}, { transient: { trx, category } });
 		const diaryB = await diaryFactory.create({}, { transient: { trx } });
+		// This diary should not in the test query results
+		await diaryFactory.create({}, { transient: { trx, parentDiary: diaryB } });
 
 		for (const testCase of [
 			{

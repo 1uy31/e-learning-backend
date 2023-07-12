@@ -21,27 +21,30 @@ export const categoryFactory = Factory.define<Category, { trx: DatabaseTransacti
 	}
 );
 
-export const diaryFactory = Factory.define<Diary, { trx: DatabaseTransactionConnection; category?: Category }>(
-	({ sequence, onCreate, transientParams }) => {
-		const categoryId = transientParams.category?.id || null;
+export const diaryFactory = Factory.define<
+	Diary,
+	{ trx: DatabaseTransactionConnection; category?: Category; parentDiary?: Diary }
+>(({ sequence, onCreate, transientParams }) => {
+	const categoryId = transientParams.category?.id || null;
+	const parentDiaryId = transientParams.parentDiary?.id || null;
 
-		onCreate(async (diary: Diary) => {
-			const connector = await createDiaryConnector(transientParams.trx);
-			return await connector.create({ ...diary, categoryId });
-		});
+	onCreate(async (diary: Diary) => {
+		const connector = await createDiaryConnector(transientParams.trx);
+		return await connector.create({ ...diary, categoryId, parentDiaryId });
+	});
 
-		return {
-			id: sequence,
-			topic: faker.random.words(10),
-			rate: Math.floor(Math.random() * 11),
-			reviewCount: sequence,
-			sourceUrl: faker.internet.domainName(),
-			categoryId: categoryId,
-			createdAt: faker.date.soon(),
-			updatedAt: null,
-		};
-	}
-);
+	return {
+		id: sequence,
+		topic: faker.random.words(10),
+		rate: Math.floor(Math.random() * 11),
+		reviewCount: sequence,
+		sourceUrl: faker.internet.domainName(),
+		categoryId: categoryId,
+		parentDiaryId: parentDiaryId,
+		createdAt: faker.date.soon(),
+		updatedAt: null,
+	};
+});
 
 export const noteFactory = Factory.define<Note, { trx: DatabaseTransactionConnection; diary?: Diary }>(
 	({ sequence, onCreate, transientParams }) => {

@@ -8,6 +8,7 @@ export const diaryObj = baseObj
 		review_count: z.number(),
 		rate: z.number().nullable(),
 		category_id: z.number().nullable(),
+		parent_diary_id: z.number().nullable(),
 	})
 	.transform((data) => ({
 		id: data.id,
@@ -18,6 +19,7 @@ export const diaryObj = baseObj
 		reviewCount: data.review_count,
 		rate: data.rate,
 		categoryId: data.category_id,
+		parentDiaryId: data.parent_diary_id,
 	}));
 
 export const inputDiaryBaseObj = z.object({
@@ -25,14 +27,16 @@ export const inputDiaryBaseObj = z.object({
 	sourceUrl: z.string().max(256).nullable().optional(),
 	rate: z.number().nullable().optional(),
 	categoryId: z.number().nullable().optional(),
+	parentDiaryId: z.number().nullable().optional(),
 });
 
 export const createDiaryObj = inputDiaryBaseObj.extend({}).transform((data) => {
-	const { sourceUrl, categoryId, ...restOfData } = data;
+	const { sourceUrl, categoryId, parentDiaryId, ...restOfData } = data;
 	return {
 		...restOfData,
 		source_url: sourceUrl,
 		category_id: categoryId,
+		parent_diary_id: parentDiaryId,
 	};
 });
 
@@ -43,11 +47,12 @@ export const updateDiaryObj = inputDiaryBaseObj
 		reviewCount: z.number().gte(0).optional(),
 	})
 	.transform((data) => {
-		const { sourceUrl, categoryId, reviewCount, ...restOfData } = data;
+		const { sourceUrl, categoryId, reviewCount, parentDiaryId, ...restOfData } = data;
 		return {
 			...restOfData,
 			source_url: sourceUrl,
 			category_id: categoryId,
+			parent_diary_id: parentDiaryId,
 			review_count: reviewCount,
 		};
 	});
