@@ -8,3 +8,4 @@ auto-updated-at-timestamp [appschema] 2022-11-27T12:41:36Z TT <?@gmail.com> # Cr
 category [auto-updated-at-timestamp] 2022-11-27T12:44:10Z TT <?@gmail.com> # Create table category
 diary [category] 2022-11-27T13:11:25Z TT <?@gmail.com> # Create table diary
 note [diary] 2022-11-27T13:25:42Z TT <?@gmail.com> # Create table note
+diary_parent [diary] 2023-07-12T14:30:04Z TT <?@gmail.com> # Add diary parent
