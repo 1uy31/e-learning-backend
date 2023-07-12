@@ -7,7 +7,7 @@ export type DiaryService = {
 	) => Promise<Readonly<Array<Diary>>>;
 	create: (
 		_obj: never,
-		kwargs: { topic: string; sourceUrl?: string; rate?: number; categoryId?: number }
+		kwargs: { topic: string; sourceUrl?: string; rate?: number; categoryId?: number; diaryParentId?: number }
 	) => Promise<Diary>;
 };
 
@@ -27,7 +27,7 @@ export const createDiaryService = (): DiaryService => {
 
 	const create = async (
 		_obj: undefined,
-		kwargs: { topic: string; sourceUrl?: string; rate?: number; categoryId?: number }
+		kwargs: { topic: string; sourceUrl?: string; rate?: number; categoryId?: number; diaryParentId?: number }
 	) => {
 		const diaryConnector = await createDiaryConnector();
 		const diaryData = {
@@ -35,6 +35,7 @@ export const createDiaryService = (): DiaryService => {
 			sourceUrl: kwargs.sourceUrl || null,
 			rate: kwargs.rate || null,
 			categoryId: kwargs.categoryId || null,
+			diaryParentId: kwargs.diaryParentId || null,
 		};
 		const diary = await diaryConnector.create(diaryData);
 		return diary;
