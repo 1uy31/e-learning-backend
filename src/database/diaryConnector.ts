@@ -20,7 +20,7 @@ export type DiaryConnector = {
 		topic?: string,
 		categoryId?: number,
 		categoryName?: string,
-		diaryParentId?: number
+		parentDiaryId?: number
 	) => Promise<Readonly<Array<Diary>>>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
@@ -50,20 +50,20 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		topic = "",
 		categoryId?: number,
 		categoryName?: string,
-		diaryParentId?: number
+		parentDiaryId?: number
 	) => {
 		const topicPattern = `%${topic.toLowerCase()}%`;
 		const topicCondition = sql.fragment`LOWER(topic) LIKE ${topicPattern}`;
 		const categoryIdCondition = categoryId ? sql.fragment`category_id = ${categoryId}` : sql.fragment`TRUE`;
-		const diaryParentIdCondition = diaryParentId
-			? sql.fragment`parent_diary_id = ${diaryParentId}`
+		const parentDiaryIdCondition = parentDiaryId
+			? sql.fragment`parent_diary_id = ${parentDiaryId}`
 			: sql.fragment`parent_diary_id IS NULL`;
 
 		if (!categoryName) {
 			const raw = await db.query(
 				sql.type(diaryObj)`SELECT * FROM ${DIARY_TABLE} WHERE 
 					 ${categoryIdCondition} AND 
-					 ${diaryParentIdCondition} AND 
+					 ${parentDiaryIdCondition} AND 
 					 ${topicCondition} ORDER BY id ASC;
 				`
 			);
@@ -74,7 +74,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		const raw = await db.query(
 			sql.type(diaryObj)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c 
     			ON d.category_id = c.id WHERE 
-					${diaryParentIdCondition} AND 
+					${parentDiaryIdCondition} AND 
 					LOWER(c.name) LIKE ${categoryNamePattern} AND 
 					${topicCondition} ORDER BY d.id ASC;
 			`

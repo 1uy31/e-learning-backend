@@ -96,7 +96,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: diaryA.topic,
 				categoryId: undefined,
 				categoryName: category.name,
-				diaryParentId: undefined,
+				parentDiaryId: undefined,
 				diaries: [diaryA],
 				expectedCount: 1,
 			},
@@ -104,7 +104,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: diaryA.topic,
 				categoryId: category.id,
 				categoryName: undefined,
-				diaryParentId: undefined,
+				parentDiaryId: undefined,
 				diaries: [diaryA],
 				expectedCount: 1,
 			},
@@ -112,7 +112,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: diaryB.topic,
 				categoryId: undefined,
 				categoryName: undefined,
-				diaryParentId: undefined,
+				parentDiaryId: undefined,
 				diaries: [diaryB],
 				expectedCount: 1,
 			},
@@ -120,7 +120,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: undefined,
 				categoryId: undefined,
 				categoryName: undefined,
-				diaryParentId: undefined,
+				parentDiaryId: undefined,
 				diaries: [diaryA, diaryB],
 				expectedCount: 2,
 			},
@@ -128,7 +128,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: undefined,
 				categoryId: undefined,
 				categoryName: undefined,
-				diaryParentId: diaryB.id,
+				parentDiaryId: diaryB.id,
 				diaries: [diaryHasParentDiary],
 				expectedCount: 1,
 			},
@@ -137,7 +137,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				testCase.topic,
 				testCase.categoryId,
 				testCase.categoryName,
-				testCase.diaryParentId
+				testCase.parentDiaryId
 			);
 			t.is(targetDiaryAQuery?.length, testCase.expectedCount);
 			t.deepEqual(targetDiaryAQuery, testCase.diaries);

@@ -10,7 +10,7 @@ export const diaryTypedef = `
     rate: Int
     reviewCount: Int
     categoryId: Int
-    diaryParentId: Int
+    parentDiaryId: Int
     createdAt: Date
     updatedAt: Date
   }
@@ -21,7 +21,7 @@ export const diaryTypedef = `
     	topic: String
         categoryId: Int
         categoryName: String
-        diaryParentId: Int
+        parentDiaryId: Int
     ): [Diary]
     
   }
@@ -33,7 +33,7 @@ export const diaryTypedef = `
         sourceUrl: String
         rate: Int
         categoryId: Int
-        diaryParentId: Int
+        parentDiaryId: Int
     ): Diary
     
   }
