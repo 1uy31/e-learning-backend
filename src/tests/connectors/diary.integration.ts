@@ -89,14 +89,14 @@ test("getByCategorizedTopic_happy", async (t) =>
 		const category = await categoryFactory.create({}, { transient: { trx } });
 		const diaryA = await diaryFactory.create({}, { transient: { trx, category } });
 		const diaryB = await diaryFactory.create({}, { transient: { trx } });
-		// This diary should not in the test query results
-		await diaryFactory.create({}, { transient: { trx, parentDiary: diaryB } });
+		const diaryHasParentDiary = await diaryFactory.create({}, { transient: { trx, parentDiary: diaryB } });
 
 		for (const testCase of [
 			{
 				topic: diaryA.topic,
 				categoryId: undefined,
 				categoryName: category.name,
+				diaryParentId: undefined,
 				diaries: [diaryA],
 				expectedCount: 1,
 			},
@@ -104,6 +104,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: diaryA.topic,
 				categoryId: category.id,
 				categoryName: undefined,
+				diaryParentId: undefined,
 				diaries: [diaryA],
 				expectedCount: 1,
 			},
@@ -111,6 +112,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: diaryB.topic,
 				categoryId: undefined,
 				categoryName: undefined,
+				diaryParentId: undefined,
 				diaries: [diaryB],
 				expectedCount: 1,
 			},
@@ -118,14 +120,24 @@ test("getByCategorizedTopic_happy", async (t) =>
 				topic: undefined,
 				categoryId: undefined,
 				categoryName: undefined,
-				diaries: [diaryB],
+				diaryParentId: undefined,
+				diaries: [diaryA, diaryB],
+				expectedCount: 2,
+			},
+			{
+				topic: undefined,
+				categoryId: undefined,
+				categoryName: undefined,
+				diaryParentId: diaryB.id,
+				diaries: [diaryHasParentDiary],
 				expectedCount: 1,
 			},
 		]) {
 			const targetDiaryAQuery = await connector.getByCategorizedTopic(
 				testCase.topic,
 				testCase.categoryId,
-				testCase.categoryName
+				testCase.categoryName,
+				testCase.diaryParentId
 			);
 			t.is(targetDiaryAQuery?.length, testCase.expectedCount);
 			t.deepEqual(targetDiaryAQuery, testCase.diaries);

@@ -3,7 +3,7 @@ import { Diary, createDiaryConnector } from "@database/diaryConnector";
 export type DiaryService = {
 	getByCategorizedTopic: (
 		_obj: never,
-		kwargs: { topic?: string; categoryId?: number; categoryName?: string }
+		kwargs: { topic?: string; categoryId?: number; categoryName?: string; diaryParentId?: number }
 	) => Promise<Readonly<Array<Diary>>>;
 	create: (
 		_obj: never,
@@ -14,13 +14,14 @@ export type DiaryService = {
 export const createDiaryService = (): DiaryService => {
 	const getByCategorizedTopic = async (
 		_obj: undefined,
-		kwargs: { topic?: string; categoryId?: number; categoryName?: string }
+		kwargs: { topic?: string; categoryId?: number; categoryName?: string; diaryParentId?: number }
 	) => {
 		const diaryConnector = await createDiaryConnector();
 		const diaries = await diaryConnector.getByCategorizedTopic(
 			kwargs.topic,
 			kwargs.categoryId,
-			kwargs.categoryName
+			kwargs.categoryName,
+			kwargs.diaryParentId
 		);
 		return diaries;
 	};

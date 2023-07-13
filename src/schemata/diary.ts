@@ -21,6 +21,7 @@ export const diaryTypedef = `
     	topic: String
         categoryId: Int
         categoryName: String
+        diaryParentId: Int
     ): [Diary]
     
   }

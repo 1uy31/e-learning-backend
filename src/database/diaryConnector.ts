@@ -19,7 +19,8 @@ export type DiaryConnector = {
 	getByCategorizedTopic: (
 		topic?: string,
 		categoryId?: number,
-		categoryName?: string
+		categoryName?: string,
+		diaryParentId?: number
 	) => Promise<Readonly<Array<Diary>>>;
 	deleteObjs: (ids: Array<number>) => Promise<number>;
 };
@@ -45,25 +46,25 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		return raw.rows[0];
 	};
 
-	const getByCategorizedTopic = async (topic = "", categoryId?: number, categoryName?: string) => {
+	const getByCategorizedTopic = async (
+		topic = "",
+		categoryId?: number,
+		categoryName?: string,
+		diaryParentId?: number
+	) => {
 		const topicPattern = `%${topic.toLowerCase()}%`;
-		if (categoryId) {
-			const raw = await db.query(
-				sql.type(diaryObj)`SELECT * FROM ${DIARY_TABLE} WHERE 
-					 category_id = ${categoryId} AND 
-					 parent_diary_id IS NULL AND 
-					 LOWER(topic) LIKE ${topicPattern} ORDER BY id ASC;
-				`
-			);
-			return raw.rows;
-		}
+		const topicCondition = sql.fragment`LOWER(topic) LIKE ${topicPattern}`;
+		const categoryIdCondition = categoryId ? sql.fragment`category_id = ${categoryId}` : sql.fragment`TRUE`;
+		const diaryParentIdCondition = diaryParentId
+			? sql.fragment`parent_diary_id = ${diaryParentId}`
+			: sql.fragment`parent_diary_id IS NULL`;
 
 		if (!categoryName) {
 			const raw = await db.query(
 				sql.type(diaryObj)`SELECT * FROM ${DIARY_TABLE} WHERE 
-					 category_id IS NULL AND 
-					 parent_diary_id IS NULL AND 
-					 LOWER(topic) LIKE ${topicPattern} ORDER BY id ASC;
+					 ${categoryIdCondition} AND 
+					 ${diaryParentIdCondition} AND 
+					 ${topicCondition} ORDER BY id ASC;
 				`
 			);
 			return raw.rows;
@@ -73,9 +74,9 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		const raw = await db.query(
 			sql.type(diaryObj)`SELECT d.* FROM ${DIARY_TABLE} d LEFT JOIN ${CATEGORY_TABLE} c 
     			ON d.category_id = c.id WHERE 
-					parent_diary_id IS NULL AND 
+					${diaryParentIdCondition} AND 
 					LOWER(c.name) LIKE ${categoryNamePattern} AND 
-					LOWER(topic) LIKE ${topicPattern} ORDER BY d.id ASC;
+					${topicCondition} ORDER BY d.id ASC;
 			`
 		);
 		return raw.rows;
