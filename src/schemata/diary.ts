@@ -41,7 +41,7 @@ export const diaryTypedef = `
 
 export const diaryResolver = {
 	Query: {
-		diaries: diaryService.getByCategorizedTopic,
+		diaries: diaryService.getMatchedObjects,
 	},
 	Mutation: {
 		addDiary: diaryService.create,

@@ -63,8 +63,8 @@ test("getAll_happy", async (t) =>
 		);
 
 		const queriedCategories = await connector.getAll("", 2, 1);
-		t.deepEqual(queriedCategories.categories[0], { ...categories[1], diaryCount: 0 });
-		t.deepEqual(queriedCategories.categories[1], { ...categories[2], diaryCount: 0 });
+		t.deepEqual(queriedCategories.categories[0], { ...categories[1], noParentDiaryCount: 0 });
+		t.deepEqual(queriedCategories.categories[1], { ...categories[2], noParentDiaryCount: 0 });
 		t.is(queriedCategories.total, 10);
 	}));
 
@@ -76,7 +76,7 @@ test("getAll_filterByName", async (t) =>
 		await diaryFactory.create({}, { transient: { trx, category: testCategory } });
 
 		const queriedCategories = await connector.getAll("testCategory", 2, 0);
-		t.deepEqual(queriedCategories.categories[0], { ...testCategory, diaryCount: 1 });
+		t.deepEqual(queriedCategories.categories[0], { ...testCategory, noParentDiaryCount: 1 });
 		t.is(queriedCategories.total, 1);
 	}));
 

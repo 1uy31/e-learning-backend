@@ -15,7 +15,7 @@ export const categoryTypedef = `
     name: String
     createdAt: Date
     updatedAt: Date
-    diaryCount: Int
+    noParentDiaryCount: Int
   }
   
   type Categories {

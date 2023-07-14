@@ -56,8 +56,8 @@ export const createCategoryConnector = async (dbPool?: SqlConnection): Promise<C
 		const categoriesQueryResult = await db.query(
 			sql.type(
 				extendedCategoryObj
-			)`SELECT c.*, COUNT(d.*) AS diary_count FROM ${CATEGORY_TABLE} c LEFT JOIN ${DIARY_TABLE} d 
-    			ON d.category_id = c.id WHERE LOWER(c.name) LIKE ${namePattern} 
+			)`SELECT c.*, COUNT(d.*) AS no_parent_diary_count FROM ${CATEGORY_TABLE} c LEFT JOIN ${DIARY_TABLE} d 
+    			ON d.category_id = c.id AND d.parent_diary_id IS NULL WHERE LOWER(c.name) LIKE ${namePattern} 
 				GROUP BY c.id ORDER BY c.id ASC LIMIT ${limit} OFFSET ${offset};
 			`
 		);

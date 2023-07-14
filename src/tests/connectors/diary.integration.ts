@@ -83,7 +83,7 @@ test("update_objNotFound", async (t) =>
 		t.truthy(updatedDiary === undefined);
 	}));
 
-test("getByCategorizedTopic_happy", async (t) =>
+test("getMatchedObjects_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createDiaryConnector(trx);
 		const category = await categoryFactory.create({}, { transient: { trx } });
@@ -133,7 +133,7 @@ test("getByCategorizedTopic_happy", async (t) =>
 				expectedCount: 1,
 			},
 		]) {
-			const targetDiaryAQuery = await connector.getByCategorizedTopic(
+			const targetDiaryAQuery = await connector.getMatchedObjects(
 				testCase.topic,
 				testCase.categoryId,
 				testCase.categoryName,

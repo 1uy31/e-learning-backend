@@ -16,7 +16,7 @@ export type Diary = z.output<typeof diaryObj>;
 export type DiaryConnector = {
 	create: (input: z.input<typeof createDiaryObj>) => Promise<Diary>;
 	update: (input: z.input<typeof updateDiaryObj>) => Promise<Diary | undefined>;
-	getByCategorizedTopic: (
+	getMatchedObjects: (
 		topic?: string,
 		categoryId?: number,
 		categoryName?: string,
@@ -46,7 +46,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		return raw.rows[0];
 	};
 
-	const getByCategorizedTopic = async (
+	const getMatchedObjects = async (
 		topic = "",
 		categoryId?: number,
 		categoryName?: string,
@@ -87,7 +87,7 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 	return {
 		create,
 		update,
-		getByCategorizedTopic,
+		getMatchedObjects,
 		deleteObjs,
 	};
 };
