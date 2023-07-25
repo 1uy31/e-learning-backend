@@ -1,5 +1,5 @@
--- Deploy e-learning-backend:auto-updated-at-timestamp to pg
--- requires: appschema
+-- Deploy e-learning-backend:2_auto_updated_at_timestamp to pg
+-- requires: 1_appschema
 
 BEGIN;
 

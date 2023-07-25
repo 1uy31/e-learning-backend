@@ -1,4 +1,4 @@
--- Revert e-learning-backend:appschema from pg
+-- Revert e-learning-backend:1_appschema from pg
 
 BEGIN;
 

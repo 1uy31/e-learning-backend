@@ -1,5 +1,5 @@
--- Deploy e-learning-backend:category to pg
--- requires: auto-updated-at-timestamp
+-- Deploy e-learning-backend:3_category to pg
+-- requires: 2_auto_updated_at_timestamp
 
 BEGIN;
 

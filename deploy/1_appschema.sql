@@ -1,4 +1,4 @@
--- Deploy e-learning-backend:appschema to pg
+-- Deploy e-learning-backend:1_appschema to pg
 
 BEGIN;
 

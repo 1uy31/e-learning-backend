@@ -1,4 +1,4 @@
--- Verify e-learning-backend:auto-updated-at-timestamp on pg
+-- Verify e-learning-backend:2_auto_updated_at_timestamp on pg
 
 BEGIN;
 

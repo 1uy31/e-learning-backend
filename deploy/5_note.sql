@@ -1,5 +1,5 @@
--- Deploy e-learning-backend:note to pg
--- requires: diary
+-- Deploy e-learning-backend:5_note to pg
+-- requires: 4_diary
 
 BEGIN;
 

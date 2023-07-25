@@ -1,4 +1,4 @@
--- Revert e-learning-backend:note from pg
+-- Revert e-learning-backend:5_note from pg
 
 BEGIN;
 

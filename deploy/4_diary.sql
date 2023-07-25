@@ -1,5 +1,5 @@
--- Deploy e-learning-backend:diary to pg
--- requires: category
+-- Deploy e-learning-backend:4_diary to pg
+-- requires: 3_category
 
 BEGIN;
 

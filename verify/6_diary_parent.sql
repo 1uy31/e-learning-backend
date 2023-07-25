@@ -1,4 +1,4 @@
--- Verify e-learning-backend:diary_parent on pg
+-- Verify e-learning-backend:6_diary_parent on pg
 
 BEGIN;
 

@@ -1,4 +1,4 @@
--- Revert e-learning-backend:diary from pg
+-- Revert e-learning-backend:4_diary from pg
 
 BEGIN;
 

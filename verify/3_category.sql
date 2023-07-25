@@ -1,4 +1,4 @@
--- Verify e-learning-backend:category on pg
+-- Verify e-learning-backend:3_category on pg
 
 BEGIN;
 

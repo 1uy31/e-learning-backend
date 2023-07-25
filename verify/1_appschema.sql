@@ -1,4 +1,4 @@
--- Verify e-learning-backend:appschema on pg
+-- Verify e-learning-backend:1_appschema on pg
 
 BEGIN;
 

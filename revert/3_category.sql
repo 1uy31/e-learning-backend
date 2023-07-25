@@ -1,4 +1,4 @@
--- Revert e-learning-backend:category from pg
+-- Revert e-learning-backend:3_category from pg
 
 BEGIN;
 

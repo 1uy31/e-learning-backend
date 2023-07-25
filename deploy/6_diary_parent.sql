@@ -1,5 +1,5 @@
--- Deploy e-learning-backend:diary_parent to pg
--- requires: diary
+-- Deploy e-learning-backend:6_diary_parent to pg
+-- requires: 4_diary
 
 BEGIN;
 
