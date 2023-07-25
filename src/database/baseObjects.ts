@@ -11,4 +11,4 @@ export const countObj = z.object({
 });
 
 export const primitiveObj = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-// export type PrimitiveType = typeof primitiveObj;
+export type JsonType = Record<string | number, string | number | boolean | null>;

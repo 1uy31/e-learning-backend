@@ -1,13 +1,14 @@
 import { APP_CONFIG } from "@src/config";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { globalTypeDef } from "@schemata/index";
+import { globalResolver, globalTypeDef } from "@schemata/index";
 import { categoryResolver, categoryTypedef } from "@schemata/category";
 import { diaryResolver, diaryTypedef } from "@schemata/diary";
+import { noteResolver, noteTypedef } from "@schemata/note";
 
 const server = new ApolloServer({
-	typeDefs: [globalTypeDef, categoryTypedef, diaryTypedef],
-	resolvers: [categoryResolver, diaryResolver],
+	typeDefs: [globalTypeDef, categoryTypedef, diaryTypedef, noteTypedef],
+	resolvers: [globalResolver, categoryResolver, diaryResolver, noteResolver],
 });
 
 let url;
