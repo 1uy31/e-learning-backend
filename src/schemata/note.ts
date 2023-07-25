@@ -13,12 +13,20 @@ export const noteTypedef = `
     createdAt: Date
     updatedAt: Date
   }
+  
+  type Notes {
+    total: Int
+    notes: [Note]
+  }
 
   extend type Query {
   
     notes (
         diaryId: Int
-    ): [Note]
+        diaryIds: [Int]
+        limit: Int
+        offset: Int
+    ): Notes
     
   }
   
@@ -36,9 +44,9 @@ export const noteTypedef = `
 `;
 
 export const noteResolver = {
-	// Query: {
-	// 	notes: noteService.getMatchedObjects,
-	// },
+	Query: {
+		notes: noteService.getMatchedObjects,
+	},
 	Mutation: {
 		addNote: noteService.create,
 	},
