@@ -2,10 +2,10 @@
 %project=e-learning-backend
 %uri=https://github.com/1uy31/e-learning-backend/
 
-appschema 2022-11-27T00:21:49Z TT <?@gmail.com> # Add schema for all objects
-auto-updated-at-timestamp [appschema] 2022-11-27T12:41:36Z TT <?@gmail.com> # Create function for automatically compute updated_at timestamp
-
-category [auto-updated-at-timestamp] 2022-11-27T12:44:10Z TT <?@gmail.com> # Create table category
-diary [category] 2022-11-27T13:11:25Z TT <?@gmail.com> # Create table diary
-note [diary] 2022-11-27T13:25:42Z TT <?@gmail.com> # Create table note
-diary_parent [diary] 2023-07-12T14:30:04Z TT <?@gmail.com> # Add diary parent
+1_appschema 2022-11-27T00:21:49Z TT <?@gmail.com> # Add schema for all objects
+2_auto_updated_at_timestamp [1_appschema] 2022-11-27T12:41:36Z TT <?@gmail.com> # Create function for automatically compute updated_at timestamp
+3_category [2_auto_updated_at_timestamp] 2022-11-27T12:44:10Z TT <?@gmail.com> # Create table category
+4_diary [3_category] 2022-11-27T13:11:25Z TT <?@gmail.com> # Create table diary
+5_note [4_diary] 2022-11-27T13:25:42Z TT <?@gmail.com> # Create table note
+6_diary_parent [4_diary] 2023-07-12T14:30:04Z TT <?@gmail.com> # Add diary parent
+7_note_fields_modification [5_note] 2023-07-23T18:48:47Z TT <?@gmail.com> # Add new and modify existing columns of table note
