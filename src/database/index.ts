@@ -44,7 +44,14 @@ const parseInput = <T extends InsertingParser>(parser: T, input: z.input<T>) => 
 		.filter(([_key, value]) => isDefined(value))
 		.map(([key, _value]) => key);
 
-	const values = Object.values(parsedInput).filter(isDefined);
+	const values = Object.values(parsedInput)
+		.filter(isDefined)
+		.map((value) => {
+			if (typeof value === "object") {
+				return sql.jsonb(value);
+			}
+			return value;
+		});
 
 	return {
 		keys,
@@ -87,7 +94,14 @@ export const parseUpdatingData = <T extends UpdatingParser>(parser: T, input: z.
 		.filter(([_key, value]) => isDefined(value))
 		.map(([key, _value]) => key);
 
-	const valuesToUpdate: Array<ValueExpression> = Object.values(restOfInput).filter(isDefined);
+	const valuesToUpdate: Array<ValueExpression> = Object.values(restOfInput)
+		.filter(isDefined)
+		.map((value) => {
+			if (typeof value === "object") {
+				return sql.jsonb(value);
+			}
+			return value;
+		});
 
 	const dataSetter = sql.join(
 		keysToUpdate.map((column, idx) => {
