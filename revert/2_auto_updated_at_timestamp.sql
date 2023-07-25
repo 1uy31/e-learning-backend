@@ -1,4 +1,4 @@
--- Revert e-learning-backend:auto-updated-at-timestamp from pg
+-- Revert e-learning-backend:2_auto_updated_at_timestamp from pg
 
 BEGIN;
 
