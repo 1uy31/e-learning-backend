@@ -1,1 +1,2 @@
-export const isDefined = <T>(argument: T | undefined): argument is T => argument !== undefined;
+export const isDefined = <T>(argument: T | undefined | null): argument is T =>
+	argument !== undefined && argument !== null;
