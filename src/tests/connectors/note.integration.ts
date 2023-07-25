@@ -8,26 +8,28 @@ import * as R from "ramda";
 import { faker } from "@faker-js/faker";
 import { UniqueIntegrityConstraintViolationError } from "slonik";
 
+const FAKED_CONTENT = { a: "b", 123: "c", d: true };
+
 test("create_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createNoteConnector(trx);
 		const diary = await diaryFactory.create({}, { transient: { trx } });
 		const creatingKwargs = {
 			notePosition: parseInt(faker.random.numeric(2)),
-			content: faker.random.words(),
+			content: FAKED_CONTENT,
 			sourceUrl: faker.internet.domainName(),
-			imageUrl: faker.internet.domainName(),
+			filePath: faker.internet.domainName(),
 			diaryId: diary.id,
 		};
 		const noteA = await connector.create(creatingKwargs);
 		Object.entries(creatingKwargs).map(([key, value]) => {
-			t.is(R.path([key], noteA), value, `Failed on asserting ${key}`);
+			t.deepEqual(R.path([key], noteA), value, `Failed on asserting ${key}`);
 		});
 		t.truthy(noteA.createdAt instanceof Date);
 		t.is(noteA.updatedAt, null);
 
 		const noteB = await connector.create({
-			content: faker.random.words(),
+			content: {},
 			notePosition: parseInt(faker.random.numeric(2)),
 		});
 		t.truthy(noteB.id > noteA.id);
@@ -41,6 +43,7 @@ test("create_diaryIdNotePositionConstraintViolation", async (t) =>
 		const creatingKwargs = {
 			notePosition: parseInt(faker.random.numeric(2)),
 			diaryId: diary.id,
+			content: FAKED_CONTENT,
 		};
 		await connector.create(creatingKwargs);
 		await t.throwsAsync(() => connector.create(creatingKwargs), {
@@ -57,17 +60,17 @@ test("update_happy", async (t) =>
 
 		const updatingKwargs = {
 			id: note.id,
-			content: faker.random.words(20),
+			content: FAKED_CONTENT,
 			notePosition: 5,
-			imageUrl: faker.internet.domainName(),
 			sourceUrl: faker.internet.domainName(),
+			filePath: faker.internet.domainName(),
 			diaryId: undefined,
 		};
 		const updatedNote = await connector.update(updatingKwargs);
 
 		Object.entries(updatingKwargs).map(([key, value]) => {
 			const newValue = value !== undefined ? value : R.path([key], note);
-			t.is(R.path([key], updatedNote), newValue, `Failed on asserting ${key}`);
+			t.deepEqual(R.path([key], updatedNote), newValue, `Failed on asserting ${key}`);
 		});
 		t.truthy(updatedNote?.updatedAt instanceof Date);
 	}));
@@ -77,7 +80,7 @@ test("update_objNotFound", async (t) =>
 		const connector = await createNoteConnector(trx);
 		await noteFactory.create({}, { transient: { trx } });
 
-		const updatedNote = await connector.update({ id: 1000, content: "New content" });
+		const updatedNote = await connector.update({ id: 1000, content: {} });
 		t.truthy(updatedNote === undefined);
 	}));
 
