@@ -84,7 +84,7 @@ test("update_objNotFound", async (t) =>
 		t.truthy(updatedNote === undefined);
 	}));
 
-test("getByDiary_happy", async (t) =>
+test("getMatchedObjects_happy", async (t) =>
 	integrationTestWrapper(async (trx) => {
 		const connector = await createNoteConnector(trx);
 		const diary = await diaryFactory.create({}, { transient: { trx } });
@@ -92,14 +92,14 @@ test("getByDiary_happy", async (t) =>
 		const fakedNotes = await Promise.all(
 			[1, 2, 3].map((_i) => noteFactory.create({}, { transient: { trx, diary } }))
 		);
-		const queriedNotes = await connector.getByDiary(diary.id);
-		t.is(queriedNotes?.length, 3);
+		const result = await connector.getMatchedObjects(diary.id);
+		t.is(result.total, 3);
 		fakedNotes.forEach((note) => {
-			const queriedNote = queriedNotes?.find((n) => n.id === note.id);
+			const queriedNote = result.notes?.find((_note) => _note.id === note.id);
 			t.deepEqual(queriedNote, note);
 		});
 
-		t.deepEqual(await connector.getByDiary(anotherDiary.id), []);
+		t.deepEqual(await connector.getMatchedObjects(anotherDiary.id), { total: 0, notes: [] });
 	}));
 
 test("delete_happy", async (t) =>
