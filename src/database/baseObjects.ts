@@ -9,3 +9,6 @@ export const baseObj = z.object({
 export const countObj = z.object({
 	count: z.number(),
 });
+
+export const primitiveObj = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+// export type PrimitiveType = typeof primitiveObj;

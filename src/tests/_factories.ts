@@ -57,10 +57,10 @@ export const noteFactory = Factory.define<Note, { trx: DatabaseTransactionConnec
 
 		return {
 			id: sequence,
-			content: faker.random.words(20),
+			content: {},
 			notePosition: sequence,
-			imageUrl: faker.internet.domainName(),
 			sourceUrl: faker.internet.domainName(),
+			filePath: faker.internet.domainName(),
 			diaryId,
 			createdAt: faker.date.soon(),
 			updatedAt: null,
