@@ -11,4 +11,8 @@ export const countObj = z.object({
 });
 
 export const primitiveObj = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-export type JsonType = Record<string | number, string | number | boolean | null>;
+export type PrimitiveType = z.infer<typeof primitiveObj>;
+export type Json = PrimitiveType | { [key: string]: Json } | Json[];
+export const jsonSchema: z.ZodType<Json> = z.lazy(() =>
+	z.union([primitiveObj, z.array(jsonSchema), z.record(jsonSchema)])
+);

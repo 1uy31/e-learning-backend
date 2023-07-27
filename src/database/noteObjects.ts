@@ -1,9 +1,9 @@
-import { baseObj, primitiveObj } from "@database/baseObjects";
+import { baseObj, jsonSchema } from "@database/baseObjects";
 import { z } from "zod";
 
 export const noteObj = baseObj
 	.extend({
-		content: z.record(z.union([z.string(), z.number()]), primitiveObj),
+		content: jsonSchema,
 		note_position: z.number(),
 		source_url: z.string().nullable(),
 		file_path: z.string().nullable(),
@@ -22,7 +22,7 @@ export const noteObj = baseObj
 
 export const inputNoteBaseObj = z.object({
 	notePosition: z.number().gte(0),
-	content: z.record(z.union([z.string(), z.number()]), primitiveObj),
+	content: jsonSchema,
 	sourceUrl: z.string().max(256).nullable().optional(),
 	filePath: z.string().max(256).nullable().optional(),
 	diaryId: z.number().gte(0).nullable().optional(),

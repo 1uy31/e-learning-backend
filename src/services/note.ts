@@ -1,5 +1,5 @@
 import { Note, createNoteConnector } from "@database/noteConnector";
-import { JsonType } from "@database/baseObjects";
+import { Json } from "@database/baseObjects";
 
 export type NoteService = {
 	getMatchedObjects: (
@@ -10,7 +10,7 @@ export type NoteService = {
 		_obj: never,
 		kwargs: {
 			notePosition: number;
-			content?: JsonType;
+			content?: Json;
 			sourceUrl?: string;
 			filePath?: string;
 			diaryId?: number;
@@ -37,7 +37,7 @@ export const createNoteService = (): NoteService => {
 		_obj: undefined,
 		kwargs: {
 			notePosition: number;
-			content?: JsonType;
+			content?: Json;
 			sourceUrl?: string;
 			filePath?: string;
 			diaryId?: number;
