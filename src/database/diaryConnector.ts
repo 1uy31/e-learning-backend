@@ -57,7 +57,9 @@ export const createDiaryConnector = async (dbPool?: SqlConnection): Promise<Diar
 		const categoryIdCondition = categoryId ? sql.fragment`category_id = ${categoryId}` : sql.fragment`TRUE`;
 		const parentDiaryIdCondition = parentDiaryId
 			? sql.fragment`parent_diary_id = ${parentDiaryId}`
-			: sql.fragment`parent_diary_id IS NULL`;
+			: parentDiaryId === null
+			? sql.fragment`parent_diary_id IS NULL`
+			: sql.fragment`TRUE`;
 
 		if (!categoryName) {
 			const raw = await db.query(
